@@ -20,20 +20,22 @@
         android:supportsRtl="true"
         tools:targetApi="31">
 
-
+        <!-- MainActivity con tema AppCompat -->
         <activity
             android:name=".MainActivity"
             android:theme="@style/Theme.AppCompat.Light.DarkActionBar"
-        android:exported="true">
-        <intent-filter>
-            <action android:name="android.intent.action.MAIN" />
-            <category android:name="android.intent.category.LAUNCHER" />
-        </intent-filter>
-    </activity>
+            android:exported="true">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+        </activity>
 
-    <activity
-        android:name=".CommentActivity"
-        android:exported="true" />
-</application>
+        <!-- CommentActivity con tema AppCompat -->
+        <activity
+            android:name=".CommentActivity"
+            android:theme="@style/Theme.AppCompat.Light.NoActionBar"
+            android:exported="true" />
+    </application>
 
-    </manifest>
+</manifest>
