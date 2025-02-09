@@ -61,6 +61,7 @@ public class CommentActivity extends AppCompatActivity {
                 Glide.with(this)
                         .load(imageUrl)
                         .placeholder(R.drawable.ic_launcher)  // Imagen predeterminada mientras se carga
+                        .error(R.drawable.ic_launcher)  // Imagen en caso de error
                         .into(productImage);
             } else {
                 // Si la imagen no está disponible, usa un marcador de posición

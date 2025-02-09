@@ -157,7 +157,6 @@ public class MainActivity extends AppCompatActivity {
 
                     ProductDatabaseHelper dbHelper = new ProductDatabaseHelper(MainActivity.this);
                     dbHelper.addProduct(barcodeInput.getText().toString(), productName, allergens, ingredients);
-
                     // Guardar producto en Firebase
                     saveProductToFirebase(barcodeInput.getText().toString(), productName, allergens, ingredients);
 
