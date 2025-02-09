@@ -45,6 +45,7 @@ public class ProductDatabaseHelper extends SQLiteOpenHelper {
             if (oldVersion < 3) {
                 // Aquí van las migraciones necesarias entre versiones
             }
+
         }
     }
 
