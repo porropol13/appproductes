@@ -3,50 +3,85 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="vertical"
-    android:padding="16dp">
+    android:padding="16dp"
+    android:background="@android:color/white"
+    android:gravity="center">
 
     <EditText
         android:id="@+id/barcodeInput"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:hint="Enter barcode" />
+        android:layout_marginBottom="12dp"
+        android:hint="Enter barcode"
+        android:padding="12dp"
+        android:background="@drawable/rounded_border"
+        android:textColor="#333333"
+        android:textSize="16sp"
+        android:inputType="text" />
 
     <Button
         android:id="@+id/scanButton"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="Search Product" />
+        android:layout_marginBottom="12dp"
+        android:text="Search Product"
+        android:textColor="@android:color/white"
+        android:background="@drawable/button_background"
+        android:padding="12dp"
+        android:textSize="16sp" />
 
     <Button
         android:id="@+id/scanCameraButton"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="Scan Barcode" />
+        android:layout_marginBottom="12dp"
+        android:text="Scan Barcode"
+        android:textColor="@android:color/white"
+        android:background="@drawable/button_background"
+        android:padding="12dp"
+        android:textSize="16sp" />
 
     <TextView
         android:id="@+id/productInfo"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:text="Product Information"
-        android:padding="8dp" />
+        android:textColor="#333333"
+        android:textSize="18sp"
+        android:textStyle="bold"
+        android:layout_marginBottom="12dp"
+        android:gravity="center" />
 
     <EditText
         android:id="@+id/commentInput"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:hint="Enter comment" />
+        android:layout_marginBottom="12dp"
+        android:hint="Enter comment"
+        android:padding="12dp"
+        android:background="@drawable/rounded_border"
+        android:textColor="#333333"
+        android:textSize="16sp"
+        android:inputType="textMultiLine" />
 
     <Button
         android:id="@+id/commentButton"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="Add Comment" />
+        android:layout_marginBottom="12dp"
+        android:text="Add Comment"
+        android:textColor="@android:color/white"
+        android:background="@drawable/button_background"
+        android:padding="12dp"
+        android:textSize="16sp" />
 
     <ListView
         android:id="@+id/productList"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:divider="@android:color/darker_gray"
-        android:dividerHeight="1dp" />
+        android:dividerHeight="1dp"
+        android:layout_marginTop="12dp"
+        android:paddingTop="8dp" />
 
 </LinearLayout>
