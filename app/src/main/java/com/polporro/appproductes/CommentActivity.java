@@ -1,68 +1,84 @@
 package com.polporro.appproductes;
 
 import android.os.Bundle;
-import android.widget.ListView;
+import android.widget.ImageView;
 import android.widget.TextView;
-import androidx.appcompat.app.AppCompatActivity;
-import com.google.firebase.FirebaseApp;
-import com.google.firebase.database.DataSnapshot;
-import com.google.firebase.database.DatabaseError;
+import com.bumptech.glide.Glide; // Importa Glide
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
-import com.google.firebase.database.ValueEventListener;
-import java.util.ArrayList;
+import androidx.appcompat.app.AppCompatActivity;
 
 public class CommentActivity extends AppCompatActivity {
 
-    private TextView productNameTextView;
-    private ListView commentsListView;
-    private ArrayList<String> commentsList;
-    private CommentsAdapter adapter;
-    private String productBarcode;
-    private String productName;
+    private TextView productName, productAllergens, productIngredients, productDescription, commentText;
+    private ImageView productImage;  // Agregamos la vista para la imagen del producto
+    private String barcode;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_comment);
 
-        // Inicialitza Firebase
-        FirebaseApp.initializeApp(this);
+        // Vincular las vistas
+        productName = findViewById(R.id.productName);
+        productAllergens = findViewById(R.id.productAllergens);
+        productIngredients = findViewById(R.id.productIngredients);
+        productDescription = findViewById(R.id.productDescription);
+        commentText = findViewById(R.id.commentText);
+        productImage = findViewById(R.id.productImage);  // Inicializar ImageView
 
-        productNameTextView = findViewById(R.id.productNameTextView);
-        commentsListView = findViewById(R.id.commentsListView);
+        // Obtener el código de barras y el nombre del producto desde el Intent
+        barcode = getIntent().getStringExtra("productBarcode");
+        String name = getIntent().getStringExtra("productName");
 
-        // Obtenir el nom del producte i el codi de barres passat des de MainActivity
-        productBarcode = getIntent().getStringExtra("productBarcode");
-        productName = getIntent().getStringExtra("productName");
+        // Mostrar el nombre del producto
+        productName.setText("Product Name: " + name);
 
-        // Mostrar el nom del producte
-        productNameTextView.setText(productName);
+        // Cargar más detalles desde la base de datos o API
+        loadProductDetails(barcode);
 
-        // Inicialitzar la llista de comentaris
-        commentsList = new ArrayList<>();
-        adapter = new CommentsAdapter(this, commentsList);
-        commentsListView.setAdapter(adapter);
+        // Cargar los comentarios desde Firebase
+        loadComments(barcode);
+    }
 
-        // Obtenir comentaris de Firebase
-        FirebaseDatabase database = FirebaseDatabase.getInstance();
-        DatabaseReference ref = database.getReference("comments").child(productBarcode);
-        ref.addValueEventListener(new ValueEventListener() {
-            @Override
-            public void onDataChange(DataSnapshot dataSnapshot) {
-                commentsList.clear();
-                for (DataSnapshot snapshot : dataSnapshot.getChildren()) {
-                    String comment = snapshot.getValue(String.class);
-                    commentsList.add(comment);
+    private void loadProductDetails(String barcode) {
+        // Aquí puedes obtener los detalles del producto desde la base de datos
+        // o llamar a la API si no se han almacenado previamente.
+
+        ProductDatabaseHelper dbHelper = new ProductDatabaseHelper(this);
+        Product product = dbHelper.getProductByBarcode(barcode);
+
+        if (product != null) {
+            productAllergens.setText("Allergens: " + product.getAllergens());
+            productIngredients.setText("Ingredients: " + product.getIngredients());
+            productDescription.setText("Description: " + product.getDescription());
+
+            // Cargar la imagen del producto usando Glide
+            String imageUrl = product.getImageUrl(); // Suponiendo que tienes la URL de la imagen
+            Glide.with(this)
+                    .load(imageUrl)
+                    .placeholder(R.drawable.ic_launcher)  // Imagen predeterminada mientras se carga
+                    .into(productImage);
+        } else {
+            productAllergens.setText("Allergens: Not available");
+            productIngredients.setText("Ingredients: Not available");
+            productDescription.setText("Description: Not available");
+        }
+    }
+
+    private void loadComments(String barcode) {
+        // Cargar los comentarios del producto desde Firebase
+        DatabaseReference commentsRef = FirebaseDatabase.getInstance().getReference("comments").child(barcode);
+        commentsRef.get().addOnCompleteListener(task -> {
+            if (task.isSuccessful()) {
+                // Obtener el primer comentario (si existe)
+                String comment = task.getResult().getValue(String.class);
+                if (comment != null) {
+                    commentText.setText("Comments: " + comment);
+                } else {
+                    commentText.setText("Comments: No comments yet.");
                 }
-                adapter.notifyDataSetChanged();
-            }
-
-            @Override
-            public void onCancelled(DatabaseError databaseError) {
-                // Manejar l'error
             }
         });
     }
 }
-

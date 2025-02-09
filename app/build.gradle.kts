@@ -45,6 +45,12 @@ dependencies {
 
     implementation(libs.zxing.android.embedded)
 
+    dependencies {
+        implementation(libs.glide)
+        annotationProcessor(libs.compiler)
+    }
+
+
 
 
 }
