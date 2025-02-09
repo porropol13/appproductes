@@ -87,6 +87,7 @@ public class ProductDatabaseHelper extends SQLiteOpenHelper {
             String description = "No description available";
             String imageUrl = "default_image_url";
 
+
             Product product = new Product(barcode, name, allergens, ingredients, description, imageUrl);
             cursor.close();
             return product;
