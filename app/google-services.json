@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "90906446574",
+    "project_id": "appproductess",
+    "storage_bucket": "appproductess.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:90906446574:android:ad838d5d61724c151a81ff",
+        "android_client_info": {
+          "package_name": "com.polporro.appproductes"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyA5fTQK9Z0NrUketFFftNmevdf3u8HQqdk"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

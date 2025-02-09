@@ -1,0 +1,5 @@
+<resources>
+    <string name="app_name">appproductes</string>
+    <string name="product_name">product\n</string>
+    <string name="product_allergens">alergics\n</string>
+</resources>
