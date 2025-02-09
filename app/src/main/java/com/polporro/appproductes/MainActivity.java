@@ -190,4 +190,5 @@ public class MainActivity extends AppCompatActivity {
         DatabaseReference ref = database.getReference("comments").child(barcode);
         ref.push().setValue(comment);
     }
+
 }
