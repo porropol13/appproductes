@@ -151,12 +151,13 @@ public class MainActivity extends AppCompatActivity {
                     String productName = product.optString("product_name", "Desconegut");
                     String allergens = product.optString("allergens", "No especificat");
                     String ingredients = product.optString("ingredients_text", "No disponible");
+                    String description = product.optString("description", "No hi ha descripcio");
 
                     String info = "Nom: " + productName + "\nAl·lèrgens: " + allergens + "\nIngredients: " + ingredients;
                     productInfo.setText(info);
 
                     ProductDatabaseHelper dbHelper = new ProductDatabaseHelper(MainActivity.this);
-                    dbHelper.addProduct(barcodeInput.getText().toString(), productName, allergens, ingredients);
+                    dbHelper.addProduct(barcodeInput.getText().toString(), productName, allergens, ingredients, description);
                     // Guardar producto en Firebase
                     saveProductToFirebase(barcodeInput.getText().toString(), productName, allergens, ingredients);
 
