@@ -8,7 +8,7 @@ import android.database.sqlite.SQLiteOpenHelper;
 public class ProductDatabaseHelper extends SQLiteOpenHelper {
 
     private static final String DATABASE_NAME = "products.db";
-    private static final int DATABASE_VERSION = 2;  // Incrementa la versión de la base de datos a 2
+    private static final int DATABASE_VERSION = 3;  // O una versión mayor si es necesario
 
     // Nombres de las tablas y columnas
     public static final String TABLE_PRODUCTS = "products";
@@ -36,10 +36,15 @@ public class ProductDatabaseHelper extends SQLiteOpenHelper {
 
     @Override
     public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) {
-        // Si la versión de la base de datos cambia, eliminar la tabla antigua y crear la nueva
-        if (oldVersion < 2) {
-            db.execSQL("DROP TABLE IF EXISTS " + TABLE_PRODUCTS);  // Eliminar la tabla antigua
-            onCreate(db);  // Crear la nueva tabla con la columna _id
+        // Eliminar la base de datos si la versión se va a hacer un downgrade
+        if (oldVersion > newVersion) {
+            db.execSQL("DROP TABLE IF EXISTS " + TABLE_PRODUCTS);
+            onCreate(db);
+        } else {
+            // Actualización normal de la base de datos
+            if (oldVersion < 3) {
+                // Aquí van las migraciones necesarias entre versiones
+            }
         }
     }
 
