@@ -11,7 +11,7 @@ import androidx.appcompat.app.AppCompatActivity;
 public class CommentActivity extends AppCompatActivity {
 
     private TextView productName, productAllergens, productIngredients, productDescription, commentText;
-    private ImageView productImage;  // Agregamos la vista para la imagen del producto
+    private ImageView productImage;  // Vista para la imagen del producto
     private String barcode;
 
     @Override
@@ -31,10 +31,14 @@ public class CommentActivity extends AppCompatActivity {
         barcode = getIntent().getStringExtra("productBarcode");
         String name = getIntent().getStringExtra("productName");
 
-        // Mostrar el nombre del producto
-        productName.setText("Product Name: " + name);
+        // Verificar si el nombre es nulo
+        if (name != null) {
+            productName.setText("Product Name: " + name);
+        } else {
+            productName.setText("Product Name: Not available");
+        }
 
-        // Cargar más detalles desde la base de datos o API
+        // Cargar los detalles del producto
         loadProductDetails(barcode);
 
         // Cargar los comentarios desde Firebase
@@ -42,24 +46,30 @@ public class CommentActivity extends AppCompatActivity {
     }
 
     private void loadProductDetails(String barcode) {
-        // Aquí puedes obtener los detalles del producto desde la base de datos
-        // o llamar a la API si no se han almacenado previamente.
-
         ProductDatabaseHelper dbHelper = new ProductDatabaseHelper(this);
         Product product = dbHelper.getProductByBarcode(barcode);
 
         if (product != null) {
-            productAllergens.setText("Allergens: " + product.getAllergens());
-            productIngredients.setText("Ingredients: " + product.getIngredients());
-            productDescription.setText("Description: " + product.getDescription());
+            // Mostrar los detalles del producto
+            productAllergens.setText("Allergens: " + (product.getAllergens() != null ? product.getAllergens() : "Not available"));
+            productIngredients.setText("Ingredients: " + (product.getIngredients() != null ? product.getIngredients() : "Not available"));
+            productDescription.setText("Description: " + (product.getDescription() != null ? product.getDescription() : "Not available"));
 
             // Cargar la imagen del producto usando Glide
-            String imageUrl = product.getImageUrl(); // Suponiendo que tienes la URL de la imagen
-            Glide.with(this)
-                    .load(imageUrl)
-                    .placeholder(R.drawable.ic_launcher)  // Imagen predeterminada mientras se carga
-                    .into(productImage);
+            String imageUrl = product.getImageUrl();
+            if (imageUrl != null && !imageUrl.isEmpty()) {
+                Glide.with(this)
+                        .load(imageUrl)
+                        .placeholder(R.drawable.ic_launcher)  // Imagen predeterminada mientras se carga
+                        .into(productImage);
+            } else {
+                // Si la imagen no está disponible, usa un marcador de posición
+                Glide.with(this)
+                        .load(R.drawable.ic_launcher)
+                        .into(productImage);
+            }
         } else {
+            // Si el producto no se encuentra en la base de datos, muestra un mensaje predeterminado
             productAllergens.setText("Allergens: Not available");
             productIngredients.setText("Ingredients: Not available");
             productDescription.setText("Description: Not available");
@@ -78,6 +88,9 @@ public class CommentActivity extends AppCompatActivity {
                 } else {
                     commentText.setText("Comments: No comments yet.");
                 }
+            } else {
+                // Si ocurre un error al obtener los comentarios, muestra un mensaje
+                commentText.setText("Comments: Error loading comments.");
             }
         });
     }
