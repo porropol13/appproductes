@@ -4,6 +4,7 @@ import android.os.Bundle;
 import android.widget.ImageView;
 import android.widget.TextView;
 import com.bumptech.glide.Glide; // Importa Glide
+import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import androidx.appcompat.app.AppCompatActivity;
@@ -80,12 +81,28 @@ public class CommentActivity extends AppCompatActivity {
     private void loadComments(String barcode) {
         // Cargar los comentarios del producto desde Firebase
         DatabaseReference commentsRef = FirebaseDatabase.getInstance().getReference("comments").child(barcode);
+
         commentsRef.get().addOnCompleteListener(task -> {
             if (task.isSuccessful()) {
-                // Obtener el primer comentario (si existe)
-                String comment = task.getResult().getValue(String.class);
-                if (comment != null) {
-                    commentText.setText("Comments: " + comment);
+                DataSnapshot dataSnapshot = task.getResult();
+
+                if (dataSnapshot.exists()) {
+                    StringBuilder allComments = new StringBuilder();
+
+                    // Iterar sobre todos los comentarios (asumiendo que son valores de tipo String)
+                    for (DataSnapshot snapshot : dataSnapshot.getChildren()) {
+                        String comment = snapshot.getValue(String.class);  // Obtener cada comentario
+                        if (comment != null) {
+                            allComments.append(comment).append("\n");
+                        }
+                    }
+
+                    if (allComments.length() > 0) {
+                        // Mostrar los comentarios concatenados
+                        commentText.setText("Comments:\n" + allComments.toString());
+                    } else {
+                        commentText.setText("Comments: No comments yet.");
+                    }
                 } else {
                     commentText.setText("Comments: No comments yet.");
                 }
