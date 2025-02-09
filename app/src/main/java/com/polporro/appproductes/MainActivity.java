@@ -158,6 +158,9 @@ public class MainActivity extends AppCompatActivity {
                     ProductDatabaseHelper dbHelper = new ProductDatabaseHelper(MainActivity.this);
                     dbHelper.addProduct(barcodeInput.getText().toString(), productName, allergens, ingredients);
 
+                    // Guardar producto en Firebase
+                    saveProductToFirebase(barcodeInput.getText().toString(), productName, allergens, ingredients);
+
                     Cursor cursor = dbHelper.getAllProducts();
                     adapter.changeCursor(cursor);
                     adapter.notifyDataSetChanged();
@@ -169,12 +172,22 @@ public class MainActivity extends AppCompatActivity {
                 productInfo.setText("Error obteniendo la información del producto.");
             }
         }
+
+        // Método para guardar producto en Firebase
+        private void saveProductToFirebase(String barcode, String productName, String allergens, String ingredients) {
+            FirebaseDatabase database = FirebaseDatabase.getInstance();
+            DatabaseReference ref = database.getReference("products").child(barcode);
+
+            ref.child("name").setValue(productName);
+            ref.child("allergens").setValue(allergens);
+            ref.child("ingredients").setValue(ingredients);
+        }
     }
 
+    // Método para guardar comentarios en Firebase
     private void saveComment(String barcode, String comment) {
         FirebaseDatabase database = FirebaseDatabase.getInstance();
         DatabaseReference ref = database.getReference("comments").child(barcode);
         ref.push().setValue(comment);
     }
-
 }
