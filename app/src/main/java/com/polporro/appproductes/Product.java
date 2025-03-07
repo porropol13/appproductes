@@ -1,6 +1,7 @@
 package com.polporro.appproductes;
 
 public class Product {
+
     private String barcode;
     private String name;
     private String allergens;
@@ -8,7 +9,8 @@ public class Product {
     private String description;
     private String imageUrl;
 
-    // Constructor
+    // Constructor, getters y setters
+
     public Product(String barcode, String name, String allergens, String ingredients, String description, String imageUrl) {
         this.barcode = barcode;
         this.name = name;
@@ -18,7 +20,6 @@ public class Product {
         this.imageUrl = imageUrl;
     }
 
-    // Getters y setters
     public String getBarcode() {
         return barcode;
     }
@@ -43,3 +44,4 @@ public class Product {
         return imageUrl;
     }
 }
+

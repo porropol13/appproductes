@@ -14,9 +14,9 @@ import android.widget.TextView;
 import com.google.firebase.FirebaseApp;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
+import com.journeyapps.barcodescanner.CaptureActivity;
 import com.google.zxing.integration.android.IntentIntegrator;
 import com.google.zxing.integration.android.IntentResult;
-import com.journeyapps.barcodescanner.CaptureActivity;
 import org.json.JSONObject;
 import java.io.BufferedReader;
 import java.io.InputStreamReader;
@@ -26,6 +26,21 @@ import java.net.URL;
 import androidx.appcompat.app.AppCompatActivity;
 
 public class MainActivity extends AppCompatActivity {
+
+    String testProducto = "3046920022606";
+
+    /*
+     * ***** Datos que recoger *****
+     * - generic_name
+     * - code
+     * - allergens
+     * - quantity
+     * - selected_images
+     * - stores
+     * - ingredients_text
+     * - countries
+     *
+     * */
 
     private EditText barcodeInput;
     private Button scanButton, scanCameraButton, commentButton;
@@ -123,7 +138,7 @@ public class MainActivity extends AppCompatActivity {
             String barcode = params[0];
             String result = "";
             try {
-                URL url = new URL("https://world.openfoodfacts.org/api/v0/product/" + barcode + ".json");
+                URL url = new URL("https://es.openfoodfacts.org/api/v0/product/" + barcode + ".json?lang=es");
                 HttpURLConnection urlConnection = (HttpURLConnection) url.openConnection();
                 urlConnection.setRequestMethod("GET");
                 urlConnection.connect();
@@ -148,19 +163,41 @@ public class MainActivity extends AppCompatActivity {
                 JSONObject jsonObject = new JSONObject(result);
                 if (jsonObject.getInt("status") == 1) {
                     JSONObject product = jsonObject.getJSONObject("product");
+
+                    // Obtener la información solicitada
                     String productName = product.optString("product_name", "Desconegut");
+                    String code = product.optString("code", "No disponible");
                     String allergens = product.optString("allergens", "No especificat");
+                    String quantity = product.optString("quantity", "No especificada");
                     String ingredients = product.optString("ingredients_text", "No disponible");
                     String description = product.optString("description", "No hi ha descripcio");
+                    String stores = product.optString("stores", "No disponible");
+                    String countries = product.optString("countries", "No disponible");
 
-                    String info = "Nom: " + productName + "\nAl·lèrgens: " + allergens + "\nIngredients: " + ingredients;
+                    // Obtener la imagen del producto
+                    JSONObject images = product.optJSONObject("selected_images");
+                    String imageUrl = images != null ? images.optString("url", "") : "";
+
+                    // Mostrar la información del producto
+                    String info = "Nom: " + productName + "\n" +
+                            "Codi: " + code + "\n" +
+                            "Al·lèrgens: " + allergens + "\n" +
+                            "Quantitat: " + quantity + "\n" +
+                            "Ingredients: " + ingredients + "\n" +
+                            "Descripció: " + description + "\n" +
+                            "Llocs: " + stores + "\n" +
+                            "Països: " + countries;
+
                     productInfo.setText(info);
 
+                    // Guardar el producto en la base de datos local
                     ProductDatabaseHelper dbHelper = new ProductDatabaseHelper(MainActivity.this);
                     dbHelper.addProduct(barcodeInput.getText().toString(), productName, allergens, ingredients, description);
-                    // Guardar producto en Firebase
-                    saveProductToFirebase(barcodeInput.getText().toString(), productName, allergens, ingredients);
 
+                    // Guardar el producto en Firebase
+                    saveProductToFirebase(barcodeInput.getText().toString(), productName, allergens, ingredients, description, imageUrl);
+
+                    // Actualizar la lista de productos
                     Cursor cursor = dbHelper.getAllProducts();
                     adapter.changeCursor(cursor);
                     adapter.notifyDataSetChanged();
@@ -174,13 +211,15 @@ public class MainActivity extends AppCompatActivity {
         }
 
         // Método para guardar producto en Firebase
-        private void saveProductToFirebase(String barcode, String productName, String allergens, String ingredients) {
+        private void saveProductToFirebase(String barcode, String productName, String allergens, String ingredients, String description, String imageUrl) {
             FirebaseDatabase database = FirebaseDatabase.getInstance();
             DatabaseReference ref = database.getReference("products").child(barcode);
 
             ref.child("name").setValue(productName);
             ref.child("allergens").setValue(allergens);
             ref.child("ingredients").setValue(ingredients);
+            ref.child("description").setValue(description);
+            ref.child("imageUrl").setValue(imageUrl);
         }
     }
 
