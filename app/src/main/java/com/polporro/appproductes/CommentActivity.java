@@ -11,7 +11,7 @@ import androidx.appcompat.app.AppCompatActivity;
 
 public class CommentActivity extends AppCompatActivity {
 
-    private TextView productName, productAllergens, productIngredients, productDescription, commentText;
+    private TextView productName, productCodi, productStores, productCountries, productAllergens, productIngredients, productDescription, commentText;
     private ImageView productImage;  // Vista para la imagen del producto
     private String barcode;
 
