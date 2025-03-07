@@ -25,6 +25,9 @@ public class CommentActivity extends AppCompatActivity {
         productAllergens = findViewById(R.id.productAllergens);
         productIngredients = findViewById(R.id.productIngredients);
         productDescription = findViewById(R.id.productDescription);
+        productCodi = findViewById(R.id.productCodi);
+        productStores = findViewById(R.id.productStores);
+        productCountries = findViewById(R.id.productCountries);
         commentText = findViewById(R.id.commentText);
         productImage = findViewById(R.id.productImage);  // Inicializar ImageView
 
@@ -55,6 +58,9 @@ public class CommentActivity extends AppCompatActivity {
             productAllergens.setText("Allergens: " + (product.getAllergens() != null ? product.getAllergens() : "Not available"));
             productIngredients.setText("Ingredients: " + (product.getIngredients() != null ? product.getIngredients() : "Not available"));
             productDescription.setText("Description: " + (product.getDescription() != null ? product.getDescription() : "Not available"));
+            productCodi.setText("Code: " + (product.getDescription() != null ? product.getCodi() : "Not available"));
+            productStores.setText("Stores: " + (product.getDescription() != null ? product.getStores() : "Not available"));
+            productCountries.setText("Countries: " + (product.getDescription() != null ? product.getCountries() : "Not available"));
 
             // Cargar la imagen del producto usando Glide
             String imageUrl = product.getImageUrl();
@@ -75,6 +81,9 @@ public class CommentActivity extends AppCompatActivity {
             productAllergens.setText("Allergens: Not available");
             productIngredients.setText("Ingredients: Not available");
             productDescription.setText("Description: Not available");
+            productCodi.setText("Code: Not available");
+            productStores.setText("Stores: Not available");
+            productCountries.setText("Countries: Not available");
         }
     }
 
