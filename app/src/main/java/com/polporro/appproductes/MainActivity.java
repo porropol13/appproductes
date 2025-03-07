@@ -192,10 +192,10 @@ public class MainActivity extends AppCompatActivity {
 
                     // Guardar el producto en la base de datos local
                     ProductDatabaseHelper dbHelper = new ProductDatabaseHelper(MainActivity.this);
-                    dbHelper.addProduct(barcodeInput.getText().toString(), productName, allergens, ingredients, description);
+                    dbHelper.addProduct(barcodeInput.getText().toString(), productName, allergens, ingredients, description, code, stores, countries);
 
                     // Guardar el producto en Firebase
-                    saveProductToFirebase(barcodeInput.getText().toString(), productName, allergens, ingredients, description, imageUrl);
+                    saveProductToFirebase(barcodeInput.getText().toString(), productName, allergens, ingredients, description, imageUrl, code, stores, countries);
 
                     // Actualizar la lista de productos
                     Cursor cursor = dbHelper.getAllProducts();
@@ -211,7 +211,7 @@ public class MainActivity extends AppCompatActivity {
         }
 
         // Método para guardar producto en Firebase
-        private void saveProductToFirebase(String barcode, String productName, String allergens, String ingredients, String description, String imageUrl) {
+        private void saveProductToFirebase(String barcode, String productName, String allergens, String ingredients, String description, String imageUrl, String code, String stores, String countries) {
             FirebaseDatabase database = FirebaseDatabase.getInstance();
             DatabaseReference ref = database.getReference("products").child(barcode);
 
@@ -220,6 +220,9 @@ public class MainActivity extends AppCompatActivity {
             ref.child("ingredients").setValue(ingredients);
             ref.child("description").setValue(description);
             ref.child("imageUrl").setValue(imageUrl);
+            ref.child("code").setValue(code);
+            ref.child("stores").setValue(stores);
+            ref.child("countries").setValue(countries);
         }
     }
 

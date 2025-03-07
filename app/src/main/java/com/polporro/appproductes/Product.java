@@ -2,22 +2,9 @@ package com.polporro.appproductes;
 
 public class Product {
 
-    /*
-     String info = "Nom: " + productName + "\n" +
-                            "Codi: " + code + "\n" +
-                            "Al·lèrgens: " + allergens + "\n" +
-                            "Quantitat: " + quantity + "\n" +
-                            "Ingredients: " + ingredients + "\n" +
-                            "Descripció: " + description + "\n" +
-                            "Llocs: " + stores + "\n" +
-                            "Països: " + countries;
-
-                    productInfo.setText(info);
-     */
-
     private String barcode;
     private String name;
-    private int codi;
+    private String codi;
     private String allergens;
     private String ingredients;
     private String description;
@@ -27,7 +14,7 @@ public class Product {
 
     // Constructor, getters y setters
 
-    public Product(String barcode, String name, int codi, String allergens, String ingredients, String description, String stores, String countries, String imageUrl) {
+    public Product(String barcode, String name, String allergens, String ingredients, String description, String stores, String countries) {
         this.barcode = barcode;
         this.name = name;
         this.codi = codi;
@@ -47,7 +34,7 @@ public class Product {
         return name;
     }
 
-    public int getCodi(){
+    public String getCodi(){
         return codi;
     }
 

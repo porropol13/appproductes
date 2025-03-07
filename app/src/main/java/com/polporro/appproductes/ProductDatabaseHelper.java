@@ -1,5 +1,6 @@
 package com.polporro.appproductes;
 
+import android.annotation.SuppressLint;
 import android.content.ContentValues;
 import android.content.Context;
 import android.database.Cursor;
@@ -16,6 +17,8 @@ public class ProductDatabaseHelper extends SQLiteOpenHelper {
     public static final String COLUMN_NAME = "name";
     public static final String COLUMN_ALLERGENS = "allergens";
     public static final String COLUMN_INGREDIENTS = "ingredients";
+    public static final String COLUMN_STORES = "stores";
+    public static final String COLUMN_COUNTRIES = "countries";
     public static final String COLUMN_ID = "_id";  // Columna _id
 
     public ProductDatabaseHelper(Context context) {
@@ -31,6 +34,8 @@ public class ProductDatabaseHelper extends SQLiteOpenHelper {
                 + COLUMN_NAME + " TEXT,"
                 + COLUMN_ALLERGENS + " TEXT,"
                 + COLUMN_INGREDIENTS + " TEXT,"
+                + COLUMN_STORES + "TEXT,"
+                + COLUMN_COUNTRIES + "TEXT,"
                 + "description TEXT" + ")";  // Añadido la columna description
         db.execSQL(CREATE_PRODUCTS_TABLE);
     }
@@ -51,7 +56,7 @@ public class ProductDatabaseHelper extends SQLiteOpenHelper {
     }
 
     // Método para agregar un producto
-    public void addProduct(String barcode, String name, String allergens, String ingredients, String description) {
+    public void addProduct(String barcode, String name, String allergens, String ingredients, String description, String code, String stores, String countries) {
         SQLiteDatabase db = this.getWritableDatabase();
 
         ContentValues values = new ContentValues();
@@ -60,6 +65,8 @@ public class ProductDatabaseHelper extends SQLiteOpenHelper {
         values.put(COLUMN_ALLERGENS, allergens);
         values.put(COLUMN_INGREDIENTS, ingredients);
         values.put("description", description);  // Guardar la descripción
+        values.put(COLUMN_STORES, stores);
+        values.put(COLUMN_COUNTRIES, countries);
 
         db.insert(TABLE_PRODUCTS, null, values);  // Insertar el producto
         db.close();
@@ -71,7 +78,7 @@ public class ProductDatabaseHelper extends SQLiteOpenHelper {
 
         // Seleccionar todas las columnas, incluida _id
         String query = "SELECT " + COLUMN_ID + ", " + COLUMN_BARCODE + ", " + COLUMN_NAME + ", "
-                + COLUMN_ALLERGENS + ", " + COLUMN_INGREDIENTS + " FROM " + TABLE_PRODUCTS;
+                + COLUMN_ALLERGENS + ", " + COLUMN_INGREDIENTS + COLUMN_STORES + COLUMN_COUNTRIES + " FROM " + TABLE_PRODUCTS;
         return db.rawQuery(query, null);
     }
 
@@ -81,20 +88,22 @@ public class ProductDatabaseHelper extends SQLiteOpenHelper {
         // Consultar el producto por su código de barras
         Cursor cursor = db.query(
                 TABLE_PRODUCTS,
-                new String[]{COLUMN_ID, COLUMN_BARCODE, COLUMN_NAME, COLUMN_ALLERGENS, COLUMN_INGREDIENTS, "description"},  // Añadir "description"
+                new String[]{COLUMN_ID, COLUMN_BARCODE, COLUMN_NAME, COLUMN_ALLERGENS, COLUMN_INGREDIENTS, COLUMN_STORES, COLUMN_COUNTRIES, "description"},  // Añadir "description"
                 COLUMN_BARCODE + "=?",
                 new String[]{barcode},
                 null, null, null
         );
 
         if (cursor != null && cursor.moveToFirst()) {
-            String name = cursor.getString(cursor.getColumnIndex(COLUMN_NAME));
-            String allergens = cursor.getString(cursor.getColumnIndex(COLUMN_ALLERGENS));
-            String ingredients = cursor.getString(cursor.getColumnIndex(COLUMN_INGREDIENTS));
-            String description = cursor.getString(cursor.getColumnIndex("description"));  // Obtener la descripción
-            String imageUrl = "default_image_url";  // Puedes reemplazar esto con un valor dinámico si es necesario
+            @SuppressLint("Range") String name = cursor.getString(cursor.getColumnIndex(COLUMN_NAME));
+            @SuppressLint("Range") String allergens = cursor.getString(cursor.getColumnIndex(COLUMN_ALLERGENS));
+            @SuppressLint("Range") String ingredients = cursor.getString(cursor.getColumnIndex(COLUMN_INGREDIENTS));
+            @SuppressLint("Range") String stores = cursor.getString(cursor.getColumnIndex(COLUMN_STORES));
+            @SuppressLint("Range") String countries = cursor.getString(cursor.getColumnIndex(COLUMN_COUNTRIES));
+            @SuppressLint("Range") String description = cursor.getString(cursor.getColumnIndex("description"));  // Obtener la descripción
+            String imageUrl = "default_image_url";
 
-            Product product = new Product(barcode, name, allergens, ingredients, description, imageUrl);
+            Product product = new Product(barcode, name, allergens, ingredients, description, stores, countries);
             cursor.close();
             return product;
         } else {
