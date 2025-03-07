@@ -66,7 +66,7 @@ public class MainActivity extends AppCompatActivity {
         commentButton = findViewById(R.id.commentButton);
         productList = findViewById(R.id.productList);
 
-        // Acción para buscar producto por código de barras
+        // Acción para buscar producto por código de barras aa
         scanButton.setOnClickListener(v -> {
             String barcode = barcodeInput.getText().toString();
             if (!barcode.isEmpty()) {
