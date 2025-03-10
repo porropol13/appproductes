@@ -21,9 +21,9 @@ public class CommentsAdapter extends ArrayAdapter<String> {
         }
         String comment = getItem(position);
         TextView commentTextView = convertView.findViewById(R.id.commentTextView);
-        commentTextView.setText(comment);
-
+        if (comment != null) {
+            commentTextView.setText(comment);
+        }
         return convertView;
     }
 }
-

@@ -1,46 +1,32 @@
 package com.polporro.appproductes;
 
 import android.content.Intent;
-import android.database.Cursor;
 import android.os.AsyncTask;
 import android.os.Bundle;
-import android.view.View;
-import android.widget.AdapterView;
+import android.util.Log;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ListView;
 import android.widget.SimpleCursorAdapter;
 import android.widget.TextView;
+
+import androidx.appcompat.app.AppCompatActivity;
+
 import com.google.firebase.FirebaseApp;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.journeyapps.barcodescanner.CaptureActivity;
 import com.google.zxing.integration.android.IntentIntegrator;
 import com.google.zxing.integration.android.IntentResult;
+
 import org.json.JSONObject;
+
 import java.io.BufferedReader;
 import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
 import java.net.URL;
 
-import androidx.appcompat.app.AppCompatActivity;
-
 public class MainActivity extends AppCompatActivity {
-
-    String testProducto = "3046920022606";
-
-    /*
-     * ***** Datos que recoger *****
-     * - generic_name
-     * - code
-     * - allergens
-     * - quantity
-     * - selected_images
-     * - stores
-     * - ingredients_text
-     * - countries
-     *
-     * */
 
     private EditText barcodeInput;
     private Button scanButton, scanCameraButton, commentButton;
@@ -66,7 +52,7 @@ public class MainActivity extends AppCompatActivity {
         commentButton = findViewById(R.id.commentButton);
         productList = findViewById(R.id.productList);
 
-        // Acción para buscar producto por código de barras aa
+        // Acción para buscar producto por código de barras
         scanButton.setOnClickListener(v -> {
             String barcode = barcodeInput.getText().toString();
             if (!barcode.isEmpty()) {
@@ -91,35 +77,95 @@ public class MainActivity extends AppCompatActivity {
                 commentInput.setText("");
             }
         });
-
-        // Configuración de la lista de productos
-        ProductDatabaseHelper dbHelper = new ProductDatabaseHelper(MainActivity.this);
-        Cursor cursor = dbHelper.getAllProducts();
-        String[] fromColumns = {ProductDatabaseHelper.COLUMN_NAME, ProductDatabaseHelper.COLUMN_ALLERGENS};
-        int[] toViews = {R.id.productName, R.id.productAllergens};
-        adapter = new SimpleCursorAdapter(MainActivity.this, R.layout.product_item, cursor, fromColumns, toViews, 0);
-        productList.setAdapter(adapter);
-
-        // Acción al hacer clic en un producto de la lista
-        productList.setOnItemClickListener((parent, view, position, id) -> {
-            Cursor clickedItemCursor = (Cursor) adapter.getItem(position);
-            int barcodeColumnIndex = clickedItemCursor.getColumnIndex(ProductDatabaseHelper.COLUMN_BARCODE);
-            int nameColumnIndex = clickedItemCursor.getColumnIndex(ProductDatabaseHelper.COLUMN_NAME);
-            if (barcodeColumnIndex >= 0 && nameColumnIndex >= 0) {
-                String productBarcode = clickedItemCursor.getString(barcodeColumnIndex);
-                String productName = clickedItemCursor.getString(nameColumnIndex);
-
-                Intent intent = new Intent(MainActivity.this, CommentActivity.class);
-                intent.putExtra("productBarcode", productBarcode);
-                intent.putExtra("productName", productName);
-                startActivity(intent);
-            }
-        });
     }
 
+    private void saveComment(String barcode, String comment) {
+        DatabaseReference database = FirebaseDatabase.getInstance().getReference("comments").child(barcode);
+        // Utilizamos push() para agregar un comentario sin sobrescribir los existentes
+        database.push().setValue(comment);
+    }
+
+    private class FetchProductInfo extends AsyncTask<String, Void, Product> {
+        @Override
+        protected Product doInBackground(String... params) {
+            String barcode = params[0];
+            try {
+                URL url = new URL("https://world.openfoodfacts.org/api/v0/product/" + barcode + ".json");
+                HttpURLConnection urlConnection = (HttpURLConnection) url.openConnection();
+                urlConnection.setRequestMethod("GET");
+                urlConnection.connect();
+
+                int responseCode = urlConnection.getResponseCode();
+                Log.d("FetchProductInfo", "Response Code: " + responseCode);
+                if (responseCode != HttpURLConnection.HTTP_OK) {
+                    return null;
+                }
+
+                BufferedReader reader = new BufferedReader(new InputStreamReader(urlConnection.getInputStream()));
+                StringBuilder stringBuilder = new StringBuilder();
+                String line;
+                while ((line = reader.readLine()) != null) {
+                    stringBuilder.append(line);
+                }
+                reader.close();
+
+                Log.d("FetchProductInfo", "API Response: " + stringBuilder.toString());
+
+                // Parseo de la respuesta JSON
+                JSONObject jsonObject = new JSONObject(stringBuilder.toString());
+                JSONObject productObject = jsonObject.getJSONObject("product");
+
+                // Extraer datos necesarios
+                String name = productObject.optString("product_name", "No disponible");
+                String allergens = productObject.optString("allergens", "No disponible");
+                String ingredients = productObject.optString("ingredients_text", "No disponible");
+                String description = productObject.optString("description", "No disponible");
+                String stores = productObject.optString("stores", "No disponible");
+                String countries = productObject.optString("countries", "No disponible");
+                String imageUrl = productObject.optString("image_url", "No disponible");
+
+                return new Product(barcode, name, allergens, ingredients, description, stores, countries, imageUrl);
+            } catch (Exception e) {
+                Log.e("FetchProductInfo", "Error al obtener la información del producto", e);
+                e.printStackTrace();
+                return null;
+            }
+        }
+
+        @Override
+        protected void onPostExecute(Product product) {
+            if (product != null) {
+                String productDetails = "Nombre: " + product.getName() + "\n"
+                        + "Alérgenos: " + product.getAllergens() + "\n"
+                        + "Ingredientes: " + product.getIngredients() + "\n"
+                        + "Descripción: " + product.getDescription() + "\n"
+                        + "Tiendas: " + product.getStores() + "\n"
+                        + "Países: " + product.getCountries() + "\n"
+                        + "Imagen: " + product.getImageUrl();
+
+                Log.d("FetchProductInfo", "Detalles del producto: " + productDetails);
+
+                productInfo.setText(productDetails);
+
+                // Guardar o actualizar producto en la base de datos local
+                ProductDatabaseHelper dbHelper = new ProductDatabaseHelper(MainActivity.this);
+                Product existingProduct = dbHelper.getProduct(product.getBarcode());
+                if (existingProduct == null) {
+                    dbHelper.addProduct(product);
+                } else {
+                    dbHelper.updateProduct(product);
+                }
+            } else {
+                productInfo.setText("No se pudo obtener la información.");
+            }
+        }
+    }
+
+
     @Override
-    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+    public void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
+
         IntentResult result = IntentIntegrator.parseActivityResult(requestCode, resultCode, data);
         if (result != null) {
             if (result.getContents() == null) {
@@ -130,107 +176,4 @@ public class MainActivity extends AppCompatActivity {
             }
         }
     }
-
-    private class FetchProductInfo extends AsyncTask<String, Void, String> {
-
-        @Override
-        protected String doInBackground(String... params) {
-            String barcode = params[0];
-            String result = "";
-            try {
-                URL url = new URL("https://es.openfoodfacts.org/api/v0/product/" + barcode + ".json?lang=es");
-                HttpURLConnection urlConnection = (HttpURLConnection) url.openConnection();
-                urlConnection.setRequestMethod("GET");
-                urlConnection.connect();
-
-                BufferedReader br = new BufferedReader(new InputStreamReader(urlConnection.getInputStream()));
-                StringBuilder sb = new StringBuilder();
-                String line;
-                while ((line = br.readLine()) != null) {
-                    sb.append(line).append("\n");
-                }
-                br.close();
-                result = sb.toString();
-            } catch (Exception e) {
-                e.printStackTrace();
-            }
-            return result;
-        }
-
-        @Override
-        protected void onPostExecute(String result) {
-            try {
-                JSONObject jsonObject = new JSONObject(result);
-                if (jsonObject.getInt("status") == 1) {
-                    JSONObject product = jsonObject.getJSONObject("product");
-
-                    // Obtener la información solicitada
-                    String productName = product.optString("product_name", "Desconegut");
-                    String code = product.optString("code", "No disponible");
-                    String allergens = product.optString("allergens", "No especificat");
-                    String quantity = product.optString("quantity", "No especificada");
-                    String ingredients = product.optString("ingredients_text", "No disponible");
-                    String description = product.optString("description", "No hi ha descripcio");
-                    String stores = product.optString("stores", "No disponible");
-                    String countries = product.optString("countries", "No disponible");
-
-                    // Obtener la imagen del producto
-                    JSONObject images = product.optJSONObject("selected_images");
-                    String imageUrl = images != null ? images.optString("url", "") : "";
-
-                    // Mostrar la información del producto
-                    String info = "Nom: " + productName + "\n" +
-                            "Codi: " + code + "\n" +
-                            "Al·lèrgens: " + allergens + "\n" +
-                            "Quantitat: " + quantity + "\n" +
-                            "Ingredients: " + ingredients + "\n" +
-                            "Descripció: " + description + "\n" +
-                            "Llocs: " + stores + "\n" +
-                            "Països: " + countries;
-
-                    productInfo.setText(info);
-
-                    // Guardar el producto en la base de datos local
-                    ProductDatabaseHelper dbHelper = new ProductDatabaseHelper(MainActivity.this);
-                    dbHelper.addProduct(barcodeInput.getText().toString(), productName, allergens, ingredients, description, code, stores, countries);
-
-                    // Guardar el producto en Firebase
-                    saveProductToFirebase(barcodeInput.getText().toString(), productName, allergens, ingredients, description, imageUrl, code, stores, countries);
-
-                    // Actualizar la lista de productos
-                    Cursor cursor = dbHelper.getAllProducts();
-                    adapter.changeCursor(cursor);
-                    adapter.notifyDataSetChanged();
-                } else {
-                    productInfo.setText("Producte no trobat.");
-                }
-            } catch (Exception e) {
-                e.printStackTrace();
-                productInfo.setText("Error obteniendo la información del producto.");
-            }
-        }
-
-        // Método para guardar producto en Firebase
-        private void saveProductToFirebase(String barcode, String productName, String allergens, String ingredients, String description, String imageUrl, String code, String stores, String countries) {
-            FirebaseDatabase database = FirebaseDatabase.getInstance();
-            DatabaseReference ref = database.getReference("products").child(barcode);
-
-            ref.child("name").setValue(productName);
-            ref.child("allergens").setValue(allergens);
-            ref.child("ingredients").setValue(ingredients);
-            ref.child("description").setValue(description);
-            ref.child("imageUrl").setValue(imageUrl);
-            ref.child("code").setValue(code);
-            ref.child("stores").setValue(stores);
-            ref.child("countries").setValue(countries);
-        }
-    }
-
-    // Método para guardar comentarios en Firebase
-    private void saveComment(String barcode, String comment) {
-        FirebaseDatabase database = FirebaseDatabase.getInstance();
-        DatabaseReference ref = database.getReference("comments").child(barcode);
-        ref.push().setValue(comment);
-    }
-
 }

@@ -1,18 +1,26 @@
 package com.polporro.appproductes;
 
 import android.os.Bundle;
+import android.util.Log;
+import android.widget.Button;
+import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.TextView;
-import com.bumptech.glide.Glide; // Importa Glide
+import android.widget.Toast;
+import com.bumptech.glide.Glide;
 import com.google.firebase.database.DataSnapshot;
+import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.database.ValueEventListener;
+import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 
 public class CommentActivity extends AppCompatActivity {
 
     private TextView productName, productCodi, productStores, productCountries, productAllergens, productIngredients, productDescription, commentText;
-    private ImageView productImage;  // Vista para la imagen del producto
+    private EditText newCommentInput;
+    private ImageView productImage;
     private String barcode;
 
     @Override
@@ -29,96 +37,125 @@ public class CommentActivity extends AppCompatActivity {
         productStores = findViewById(R.id.productStores);
         productCountries = findViewById(R.id.productCountries);
         commentText = findViewById(R.id.commentText);
-        productImage = findViewById(R.id.productImage);  // Inicializar ImageView
+        newCommentInput = findViewById(R.id.newCommentInput);
+        productImage = findViewById(R.id.productImage);
 
         // Obtener el código de barras y el nombre del producto desde el Intent
         barcode = getIntent().getStringExtra("productBarcode");
         String name = getIntent().getStringExtra("productName");
 
-        // Verificar si el nombre es nulo
         if (name != null) {
             productName.setText("Product Name: " + name);
         } else {
             productName.setText("Product Name: Not available");
         }
 
-        // Cargar los detalles del producto
+        // Cargar detalles y comentarios
         loadProductDetails(barcode);
-
-        // Cargar los comentarios desde Firebase
         loadComments(barcode);
+        setupSaveCommentButton();
     }
 
     private void loadProductDetails(String barcode) {
-        ProductDatabaseHelper dbHelper = new ProductDatabaseHelper(this);
-        Product product = dbHelper.getProductByBarcode(barcode);
+        // Simulación de datos (reemplaza esto con tu lógica de base de datos)
+        Product product = new Product(
+                barcode,
+                "Sample Product",
+                "Sample Stores",
+                "Sample Countries",
+                "Sample Allergens",
+                "Sample Ingredients",
+                "Sample Description",
+                "https://via.placeholder.com/200" // URL de imagen de ejemplo
+        );
 
         if (product != null) {
-            // Mostrar los detalles del producto
             productAllergens.setText("Allergens: " + (product.getAllergens() != null ? product.getAllergens() : "Not available"));
             productIngredients.setText("Ingredients: " + (product.getIngredients() != null ? product.getIngredients() : "Not available"));
             productDescription.setText("Description: " + (product.getDescription() != null ? product.getDescription() : "Not available"));
-            productCodi.setText("Code: " + (product.getDescription() != null ? product.getCodi() : "Not available"));
-            productStores.setText("Stores: " + (product.getDescription() != null ? product.getStores() : "Not available"));
-            productCountries.setText("Countries: " + (product.getDescription() != null ? product.getCountries() : "Not available"));
+            productCodi.setText("Barcode: " + product.getBarcode());
+            productStores.setText("Stores: " + (product.getStores() != null ? product.getStores() : "Not available"));
+            productCountries.setText("Countries: " + (product.getCountries() != null ? product.getCountries() : "Not available"));
 
-            // Cargar la imagen del producto usando Glide
             String imageUrl = product.getImageUrl();
-            if (imageUrl != null && !imageUrl.isEmpty()) {
+            if (imageUrl != null && !imageUrl.isEmpty() && !imageUrl.equals("No disponible")) {
                 Glide.with(this)
                         .load(imageUrl)
-                        .placeholder(R.drawable.ic_launcher)  // Imagen predeterminada mientras se carga
-                        .error(R.drawable.ic_launcher)  // Imagen en caso de error
+                        .placeholder(R.drawable.ic_launcher)
+                        .error(R.drawable.ic_launcher)
                         .into(productImage);
             } else {
-                // Si la imagen no está disponible, usa un marcador de posición
                 Glide.with(this)
                         .load(R.drawable.ic_launcher)
                         .into(productImage);
             }
         } else {
-            // Si el producto no se encuentra en la base de datos, muestra un mensaje predeterminado
             productAllergens.setText("Allergens: Not available");
             productIngredients.setText("Ingredients: Not available");
             productDescription.setText("Description: Not available");
-            productCodi.setText("Code: Not available");
+            productCodi.setText("Barcode: Not available");
             productStores.setText("Stores: Not available");
             productCountries.setText("Countries: Not available");
+            Toast.makeText(this, "Product details not found.", Toast.LENGTH_SHORT).show();
         }
     }
 
     private void loadComments(String barcode) {
-        // Cargar los comentarios del producto desde Firebase
+        commentText.setText("Loading comments..."); // Mensaje mientras se cargan los comentarios
         DatabaseReference commentsRef = FirebaseDatabase.getInstance().getReference("comments").child(barcode);
 
-        commentsRef.get().addOnCompleteListener(task -> {
-            if (task.isSuccessful()) {
-                DataSnapshot dataSnapshot = task.getResult();
+        commentsRef.addValueEventListener(new ValueEventListener() {
+            @Override
+            public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
+                StringBuilder allComments = new StringBuilder();
+                allComments.append("Comments:\n");
 
-                if (dataSnapshot.exists()) {
-                    StringBuilder allComments = new StringBuilder();
-
-                    // Iterar sobre todos los comentarios (asumiendo que son valores de tipo String)
-                    for (DataSnapshot snapshot : dataSnapshot.getChildren()) {
-                        String comment = snapshot.getValue(String.class);  // Obtener cada comentario
-                        if (comment != null) {
-                            allComments.append(comment).append("\n");
-                        }
+                for (DataSnapshot snapshot : dataSnapshot.getChildren()) {
+                    String comment = snapshot.getValue(String.class);
+                    if (comment != null) {
+                        allComments.append("- ").append(comment).append("\n");
                     }
+                }
 
-                    if (allComments.length() > 0) {
-                        // Mostrar los comentarios concatenados
-                        commentText.setText("Comments:\n" + allComments.toString());
-                    } else {
-                        commentText.setText("Comments: No comments yet.");
-                    }
+                if (allComments.length() > 10) {
+                    commentText.setText(allComments.toString());
                 } else {
                     commentText.setText("Comments: No comments yet.");
                 }
-            } else {
-                // Si ocurre un error al obtener los comentarios, muestra un mensaje
+            }
+
+            @Override
+            public void onCancelled(@NonNull DatabaseError databaseError) {
                 commentText.setText("Comments: Error loading comments.");
+                Toast.makeText(CommentActivity.this, "Error loading comments: " + databaseError.getMessage(), Toast.LENGTH_SHORT).show();
             }
         });
+    }
+
+    private void setupSaveCommentButton() {
+        Button saveCommentButton = findViewById(R.id.saveCommentButton);
+        saveCommentButton.setOnClickListener(v -> {
+            String comment = newCommentInput.getText().toString().trim();
+            if (!comment.isEmpty()) {
+                saveComment(barcode, comment);
+                newCommentInput.setText("");
+            } else {
+                Toast.makeText(CommentActivity.this, "Please write a comment before saving", Toast.LENGTH_SHORT).show();
+            }
+        });
+    }
+
+    private void saveComment(String barcode, String comment) {
+        DatabaseReference commentsRef = FirebaseDatabase.getInstance().getReference("comments").child(barcode);
+        String commentId = commentsRef.push().getKey();
+        if (commentId != null) {
+            commentsRef.child(commentId).setValue(comment).addOnCompleteListener(task -> {
+                if (task.isSuccessful()) {
+                    Toast.makeText(CommentActivity.this, "Comment added successfully!", Toast.LENGTH_SHORT).show();
+                } else {
+                    Toast.makeText(CommentActivity.this, "Error saving comment.", Toast.LENGTH_SHORT).show();
+                }
+            });
+        }
     }
 }

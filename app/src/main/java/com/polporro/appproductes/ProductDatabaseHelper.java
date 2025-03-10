@@ -1,114 +1,134 @@
 package com.polporro.appproductes;
 
-import android.annotation.SuppressLint;
-import android.content.ContentValues;
 import android.content.Context;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
+import java.util.ArrayList;
+
 public class ProductDatabaseHelper extends SQLiteOpenHelper {
 
+    // Incrementamos la versión para actualizar el esquema.
+    private static final int DATABASE_VERSION = 4;
     private static final String DATABASE_NAME = "products.db";
-    private static final int DATABASE_VERSION = 3;  // O una versión mayor si es necesario
 
-    // Nombres de las tablas y columnas
-    public static final String TABLE_PRODUCTS = "products";
+    // Columnas de la tabla "products"
     public static final String COLUMN_BARCODE = "barcode";
     public static final String COLUMN_NAME = "name";
     public static final String COLUMN_ALLERGENS = "allergens";
     public static final String COLUMN_INGREDIENTS = "ingredients";
+    public static final String COLUMN_DESCRIPTION = "description";
     public static final String COLUMN_STORES = "stores";
     public static final String COLUMN_COUNTRIES = "countries";
-    public static final String COLUMN_ID = "_id";  // Columna _id
+    public static final String COLUMN_IMAGE_URL = "imageUrl";
 
     public ProductDatabaseHelper(Context context) {
         super(context, DATABASE_NAME, null, DATABASE_VERSION);
     }
 
+    // Crear la tabla con el esquema actualizado
     @Override
     public void onCreate(SQLiteDatabase db) {
-        // Crear la tabla con la columna _id y la columna description
-        String CREATE_PRODUCTS_TABLE = "CREATE TABLE " + TABLE_PRODUCTS + "("
-                + COLUMN_ID + " INTEGER PRIMARY KEY AUTOINCREMENT,"  // _id como clave primaria autoincremental
-                + COLUMN_BARCODE + " TEXT,"
-                + COLUMN_NAME + " TEXT,"
-                + COLUMN_ALLERGENS + " TEXT,"
-                + COLUMN_INGREDIENTS + " TEXT,"
-                + COLUMN_STORES + "TEXT,"
-                + COLUMN_COUNTRIES + "TEXT,"
-                + "description TEXT" + ")";  // Añadido la columna description
+        String CREATE_PRODUCTS_TABLE = "CREATE TABLE products ("
+                + COLUMN_BARCODE + " TEXT PRIMARY KEY, "
+                + COLUMN_NAME + " TEXT, "
+                + COLUMN_ALLERGENS + " TEXT, "
+                + COLUMN_INGREDIENTS + " TEXT, "
+                + COLUMN_DESCRIPTION + " TEXT, "
+                + COLUMN_STORES + " TEXT, "
+                + COLUMN_COUNTRIES + " TEXT, "
+                + COLUMN_IMAGE_URL + " TEXT)";
         db.execSQL(CREATE_PRODUCTS_TABLE);
     }
 
+    // Forzar actualización del esquema borrando la tabla y recreándola.
     @Override
     public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) {
-        // Eliminar la base de datos si la versión se va a hacer un downgrade
-        if (oldVersion > newVersion) {
-            db.execSQL("DROP TABLE IF EXISTS " + TABLE_PRODUCTS);
-            onCreate(db);
-        } else {
-            // Actualización normal de la base de datos
-            if (oldVersion < 3) {
-                // Aquí van las migraciones necesarias entre versiones
-            }
-
-        }
+        db.execSQL("DROP TABLE IF EXISTS products");
+        onCreate(db);
     }
 
-    // Método para agregar un producto
-    public void addProduct(String barcode, String name, String allergens, String ingredients, String description, String code, String stores, String countries) {
+    public ArrayList<Product> getAllProducts() {
+        ArrayList<Product> products = new ArrayList<>();
+        SQLiteDatabase db = this.getReadableDatabase();
+        Cursor cursor = db.query("products", null, null, null, null, null, null);
+        if (cursor != null && cursor.moveToFirst()) {
+            do {
+                String barcode = cursor.getString(cursor.getColumnIndex(COLUMN_BARCODE));
+                String name = cursor.getString(cursor.getColumnIndex(COLUMN_NAME));
+                String allergens = cursor.getString(cursor.getColumnIndex(COLUMN_ALLERGENS));
+                String ingredients = cursor.getString(cursor.getColumnIndex(COLUMN_INGREDIENTS));
+                String description = cursor.getString(cursor.getColumnIndex(COLUMN_DESCRIPTION));
+                String stores = cursor.getString(cursor.getColumnIndex(COLUMN_STORES));
+                String countries = cursor.getString(cursor.getColumnIndex(COLUMN_COUNTRIES));
+                String imageUrl = cursor.getString(cursor.getColumnIndex(COLUMN_IMAGE_URL));
+
+                products.add(new Product(barcode, name, allergens, ingredients, description, stores, countries, imageUrl));
+            } while (cursor.moveToNext());
+            cursor.close();
+        }
+        return products;
+    }
+
+    public void addProduct(Product product) {
         SQLiteDatabase db = this.getWritableDatabase();
-
-        ContentValues values = new ContentValues();
-        values.put(COLUMN_BARCODE, barcode);
-        values.put(COLUMN_NAME, name);
-        values.put(COLUMN_ALLERGENS, allergens);
-        values.put(COLUMN_INGREDIENTS, ingredients);
-        values.put("description", description);  // Guardar la descripción
-        values.put(COLUMN_STORES, stores);
-        values.put(COLUMN_COUNTRIES, countries);
-
-        db.insert(TABLE_PRODUCTS, null, values);  // Insertar el producto
+        String insertQuery = "INSERT INTO products (" + COLUMN_BARCODE + ", " + COLUMN_NAME + ", " + COLUMN_ALLERGENS + ", "
+                + COLUMN_INGREDIENTS + ", " + COLUMN_DESCRIPTION + ", " + COLUMN_STORES + ", " + COLUMN_COUNTRIES + ", "
+                + COLUMN_IMAGE_URL + ") VALUES (?, ?, ?, ?, ?, ?, ?, ?)";
+        db.execSQL(insertQuery, new Object[]{
+                product.getBarcode(),
+                product.getName(),
+                product.getAllergens(),
+                product.getIngredients(),
+                product.getDescription(),
+                product.getStores(),
+                product.getCountries(),
+                product.getImageUrl()
+        });
         db.close();
     }
 
-    // Método para obtener todos los productos
-    public Cursor getAllProducts() {
-        SQLiteDatabase db = this.getReadableDatabase();
-
-        // Seleccionar todas las columnas, incluida _id
-        String query = "SELECT " + COLUMN_ID + ", " + COLUMN_BARCODE + ", " + COLUMN_NAME + ", "
-                + COLUMN_ALLERGENS + ", " + COLUMN_INGREDIENTS + COLUMN_STORES + COLUMN_COUNTRIES + " FROM " + TABLE_PRODUCTS;
-        return db.rawQuery(query, null);
+    public void updateProduct(Product product) {
+        SQLiteDatabase db = this.getWritableDatabase();
+        String updateQuery = "UPDATE products SET " + COLUMN_NAME + " = ?, " + COLUMN_ALLERGENS + " = ?, "
+                + COLUMN_INGREDIENTS + " = ?, " + COLUMN_DESCRIPTION + " = ?, " + COLUMN_STORES + " = ?, "
+                + COLUMN_COUNTRIES + " = ?, " + COLUMN_IMAGE_URL + " = ? WHERE " + COLUMN_BARCODE + " = ?";
+        db.execSQL(updateQuery, new Object[]{
+                product.getName(),
+                product.getAllergens(),
+                product.getIngredients(),
+                product.getDescription(),
+                product.getStores(),
+                product.getCountries(),
+                product.getImageUrl(),
+                product.getBarcode()
+        });
+        db.close();
     }
 
-    public Product getProductByBarcode(String barcode) {
+    public void deleteProduct(String barcode) {
+        SQLiteDatabase db = this.getWritableDatabase();
+        String deleteQuery = "DELETE FROM products WHERE " + COLUMN_BARCODE + " = ?";
+        db.execSQL(deleteQuery, new Object[]{barcode});
+        db.close();
+    }
+
+    public Product getProduct(String barcode) {
         SQLiteDatabase db = this.getReadableDatabase();
-
-        // Consultar el producto por su código de barras
-        Cursor cursor = db.query(
-                TABLE_PRODUCTS,
-                new String[]{COLUMN_ID, COLUMN_BARCODE, COLUMN_NAME, COLUMN_ALLERGENS, COLUMN_INGREDIENTS, COLUMN_STORES, COLUMN_COUNTRIES, "description"},  // Añadir "description"
-                COLUMN_BARCODE + "=?",
-                new String[]{barcode},
-                null, null, null
-        );
-
+        Cursor cursor = db.query("products", null, COLUMN_BARCODE + " = ?", new String[]{barcode}, null, null, null);
+        Product product = null;
         if (cursor != null && cursor.moveToFirst()) {
-            @SuppressLint("Range") String name = cursor.getString(cursor.getColumnIndex(COLUMN_NAME));
-            @SuppressLint("Range") String allergens = cursor.getString(cursor.getColumnIndex(COLUMN_ALLERGENS));
-            @SuppressLint("Range") String ingredients = cursor.getString(cursor.getColumnIndex(COLUMN_INGREDIENTS));
-            @SuppressLint("Range") String stores = cursor.getString(cursor.getColumnIndex(COLUMN_STORES));
-            @SuppressLint("Range") String countries = cursor.getString(cursor.getColumnIndex(COLUMN_COUNTRIES));
-            @SuppressLint("Range") String description = cursor.getString(cursor.getColumnIndex("description"));  // Obtener la descripción
-            String imageUrl = "default_image_url";
+            String name = cursor.getString(cursor.getColumnIndex(COLUMN_NAME));
+            String allergens = cursor.getString(cursor.getColumnIndex(COLUMN_ALLERGENS));
+            String ingredients = cursor.getString(cursor.getColumnIndex(COLUMN_INGREDIENTS));
+            String description = cursor.getString(cursor.getColumnIndex(COLUMN_DESCRIPTION));
+            String stores = cursor.getString(cursor.getColumnIndex(COLUMN_STORES));
+            String countries = cursor.getString(cursor.getColumnIndex(COLUMN_COUNTRIES));
+            String imageUrl = cursor.getString(cursor.getColumnIndex(COLUMN_IMAGE_URL));
 
-            Product product = new Product(barcode, name, allergens, ingredients, description, stores, countries);
+            product = new Product(barcode, name, allergens, ingredients, description, stores, countries, imageUrl);
             cursor.close();
-            return product;
-        } else {
-            cursor.close();
-            return null;
         }
+        return product;
     }
 }
