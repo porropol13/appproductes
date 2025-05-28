@@ -57,19 +57,12 @@ public class CommentActivity extends AppCompatActivity {
     }
 
     private void loadProductDetails(String barcode) {
-        // Simulación de datos (reemplaza esto con tu lógica de base de datos)
-        Product product = new Product(
-                barcode,
-                "Sample Product",
-                "Sample Stores",
-                "Sample Countries",
-                "Sample Allergens",
-                "Sample Ingredients",
-                "Sample Description",
-                "https://via.placeholder.com/200" // URL de imagen de ejemplo
-        );
+        // Obtener el producto desde la base de datos local
+        ProductDatabaseHelper dbHelper = new ProductDatabaseHelper(this);
+        Product product = dbHelper.getProduct(barcode);
 
         if (product != null) {
+            productName.setText("Product Name: " + (product.getName() != null ? product.getName() : "Not available"));
             productAllergens.setText("Allergens: " + (product.getAllergens() != null ? product.getAllergens() : "Not available"));
             productIngredients.setText("Ingredients: " + (product.getIngredients() != null ? product.getIngredients() : "Not available"));
             productDescription.setText("Description: " + (product.getDescription() != null ? product.getDescription() : "Not available"));
@@ -78,6 +71,7 @@ public class CommentActivity extends AppCompatActivity {
             productCountries.setText("Countries: " + (product.getCountries() != null ? product.getCountries() : "Not available"));
 
             String imageUrl = product.getImageUrl();
+            Log.d("CommentActivity", "Image URL: " + imageUrl);
             if (imageUrl != null && !imageUrl.isEmpty() && !imageUrl.equals("No disponible")) {
                 Glide.with(this)
                         .load(imageUrl)
@@ -85,20 +79,16 @@ public class CommentActivity extends AppCompatActivity {
                         .error(R.drawable.ic_launcher)
                         .into(productImage);
             } else {
-                Glide.with(this)
-                        .load(R.drawable.ic_launcher)
-                        .into(productImage);
+                productImage.setImageResource(R.drawable.ic_launcher);
             }
         } else {
-            productAllergens.setText("Allergens: Not available");
-            productIngredients.setText("Ingredients: Not available");
-            productDescription.setText("Description: Not available");
-            productCodi.setText("Barcode: Not available");
-            productStores.setText("Stores: Not available");
-            productCountries.setText("Countries: Not available");
+            // Manejar el caso de que el producto no se encuentre
             Toast.makeText(this, "Product details not found.", Toast.LENGTH_SHORT).show();
+            finish(); // Opcional: cerrar la actividad si no hay datos
         }
     }
+
+
 
     private void loadComments(String barcode) {
         commentText.setText("Loading comments..."); // Mensaje mientras se cargan los comentarios
