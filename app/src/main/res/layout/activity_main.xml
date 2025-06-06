@@ -12,23 +12,8 @@
         android:orientation="vertical"
         android:gravity="center">
 
-        <!-- ======= Encapsular imagen en CardView para sombra y esquinas redondeadas ======= -->
-        <androidx.cardview.widget.CardView
-            android:layout_width="match_parent"
-            android:layout_height="220dp"
-            card_view:cardCornerRadius="12dp"
-            card_view:cardElevation="4dp"
-            android:layout_marginBottom="16dp">
+        <!-- ======= Imagen y campos que ya tenías ======= -->
 
-            <ImageView
-                android:id="@+id/productImage"
-                android:layout_width="match_parent"
-                android:layout_height="match_parent"
-                android:scaleType="centerCrop"
-                android:contentDescription="Product Image" />
-        </androidx.cardview.widget.CardView>
-
-        <!-- ======= Barcode Input con sombra y esquinas redondeadas ======= -->
         <androidx.cardview.widget.CardView
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
@@ -48,7 +33,6 @@
                 android:inputType="text" />
         </androidx.cardview.widget.CardView>
 
-        <!-- ======= Botón Buscar Producto ======= -->
         <Button
             android:id="@+id/scanButton"
             android:layout_width="match_parent"
@@ -59,7 +43,6 @@
             android:background="@drawable/button_background"
             android:textSize="16sp" />
 
-        <!-- ======= Botón Escanear con Cámara ======= -->
         <Button
             android:id="@+id/scanCameraButton"
             android:layout_width="match_parent"
@@ -70,19 +53,17 @@
             android:background="@drawable/button_background"
             android:textSize="16sp" />
 
-        <!-- ======= Título de sección ======= -->
         <TextView
             android:id="@+id/productInfo"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="Información del Producto"
+            android:layout_marginBottom="12dp"
+            android:gravity="center"
+            android:text="Comentario"
             android:textColor="#212121"
             android:textSize="18sp"
-            android:textStyle="bold"
-            android:layout_marginBottom="12dp"
-            android:gravity="center" />
+            android:textStyle="bold" />
 
-        <!-- ======= Campo Comentario con sombra ======= -->
         <androidx.cardview.widget.CardView
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
@@ -102,7 +83,6 @@
                 android:inputType="textMultiLine" />
         </androidx.cardview.widget.CardView>
 
-        <!-- ======= Botón Añadir Comentario ======= -->
         <Button
             android:id="@+id/commentButton"
             android:layout_width="match_parent"
@@ -113,21 +93,32 @@
             android:background="@drawable/button_background"
             android:textSize="16sp" />
 
-        <!-- ======= ListView de productos con fondo blanco y separación ======= -->
-        <androidx.cardview.widget.CardView
+        <!-- ======= Aquí añadimos el título "Historial de Productos" ======= -->
+        <TextView
+            android:id="@+id/historyTitle"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
+            android:text="Historial de Productos"
+            android:textColor="#424242"
+            android:textSize="18sp"
+            android:textStyle="bold"
+            android:layout_marginTop="24dp"
+            android:layout_marginBottom="8dp"
+            android:gravity="center" />
+
+        <!-- ======= Historial agrandado para mostrar al menos 5 ítems ======= -->
+        <androidx.cardview.widget.CardView
+            android:layout_width="match_parent"
+            android:layout_height="450dp"
             card_view:cardCornerRadius="8dp"
             card_view:cardElevation="2dp"
-            android:paddingTop="8dp"
-            android:paddingBottom="8dp"
-            android:layout_marginTop="8dp"
+            android:padding="8dp"
             android:layout_marginBottom="16dp">
 
             <ListView
                 android:id="@+id/productList"
                 android:layout_width="match_parent"
-                android:layout_height="wrap_content"
+                android:layout_height="match_parent"
                 android:divider="@android:color/darker_gray"
                 android:dividerHeight="1dp" />
         </androidx.cardview.widget.CardView>
