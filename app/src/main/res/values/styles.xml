@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
 
-    <!-- Estilo principal de la aplicación -->
-    <style name="AppTheme" parent="Theme.MaterialComponents.DayNight.DarkActionBar">
+    <!-- Estilo principal de la aplicación: hereda de AppCompat -->
+    <style name="AppTheme" parent="Theme.AppCompat.Light.NoActionBar">
         <!-- Colores principales -->
         <item name="colorPrimary">@color/colorPrimary</item>
         <item name="colorPrimaryDark">@color/colorPrimaryDark</item>
@@ -12,9 +12,9 @@
         <item name="android:windowBackground">@color/backgroundColor</item>
         <item name="android:textColorPrimary">@color/textColorPrimary</item>
 
-        <!-- Estilo de texto para los elementos con texto grande y mediano -->
-        <item name="android:textSize">16sp</item>  <!-- Tamaño por defecto de texto -->
-        <item name="android:textColor">@color/textColorPrimary</item>  <!-- Color por defecto del texto -->
+        <!-- Estilo de texto por defecto (puedes ajustarlo si quieres) -->
+        <item name="android:textSize">16sp</item>
+        <item name="android:textColor">@color/textColorPrimary</item>
     </style>
 
 </resources>

@@ -1,22 +1,25 @@
 package com.polporro.appproductes;
 
+import android.annotation.SuppressLint;
 import android.content.ContentValues;
 import android.content.Context;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
+
+import java.util.ArrayList;
+import java.util.List;
+
 public class ProductDatabaseHelper extends SQLiteOpenHelper {
 
-    private static final String DATABASE_NAME = "products.db";
-    private static final int DATABASE_VERSION = 3;  // O una versión mayor si es necesario
+    private static final String DATABASE_NAME    = "products.db";
+    private static final int    DATABASE_VERSION = 5;
 
-    // Nombres de las tablas y columnas
     public static final String TABLE_PRODUCTS = "products";
-    public static final String COLUMN_BARCODE = "barcode";
-    public static final String COLUMN_NAME = "name";
-    public static final String COLUMN_ALLERGENS = "allergens";
-    public static final String COLUMN_INGREDIENTS = "ingredients";
-    public static final String COLUMN_ID = "_id";  // Columna _id
+    public static final String COL_ID         = "_id";
+    public static final String COL_BARCODE    = "barcode";
+    public static final String COL_NAME       = "name";
+    public static final String COL_BRAND      = "brand";
 
     public ProductDatabaseHelper(Context context) {
         super(context, DATABASE_NAME, null, DATABASE_VERSION);
@@ -24,82 +27,113 @@ public class ProductDatabaseHelper extends SQLiteOpenHelper {
 
     @Override
     public void onCreate(SQLiteDatabase db) {
-        // Crear la tabla con la columna _id y la columna description
-        String CREATE_PRODUCTS_TABLE = "CREATE TABLE " + TABLE_PRODUCTS + "("
-                + COLUMN_ID + " INTEGER PRIMARY KEY AUTOINCREMENT,"  // _id como clave primaria autoincremental
-                + COLUMN_BARCODE + " TEXT,"
-                + COLUMN_NAME + " TEXT,"
-                + COLUMN_ALLERGENS + " TEXT,"
-                + COLUMN_INGREDIENTS + " TEXT,"
-                + "description TEXT" + ")";  // Añadido la columna description
-        db.execSQL(CREATE_PRODUCTS_TABLE);
+        String createTable = "CREATE TABLE " + TABLE_PRODUCTS + " (" +
+                COL_ID      + " INTEGER PRIMARY KEY AUTOINCREMENT, " +
+                COL_BARCODE + " TEXT UNIQUE, " +
+                COL_NAME    + " TEXT, " +
+                COL_BRAND   + " TEXT)";
+        db.execSQL(createTable);
     }
 
     @Override
-    public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) {
-        // Eliminar la base de datos si la versión se va a hacer un downgrade
-        if (oldVersion > newVersion) {
-            db.execSQL("DROP TABLE IF EXISTS " + TABLE_PRODUCTS);
-            onCreate(db);
-        } else {
-            // Actualización normal de la base de datos
-            if (oldVersion < 3) {
-                // Aquí van las migraciones necesarias entre versiones
-            }
-
-        }
+    public void onUpgrade(SQLiteDatabase db, int oldV, int newV) {
+        db.execSQL("DROP TABLE IF EXISTS " + TABLE_PRODUCTS);
+        onCreate(db);
     }
 
-    // Método para agregar un producto
-    public void addProduct(String barcode, String name, String allergens, String ingredients, String description) {
+    @Override
+    public void onDowngrade(SQLiteDatabase db, int oldVersion, int newVersion) {
+        db.execSQL("DROP TABLE IF EXISTS " + TABLE_PRODUCTS);
+        onCreate(db);
+    }
+
+    // Guardar o reemplazar un producto
+    public void addProduct(Product product) {
         SQLiteDatabase db = this.getWritableDatabase();
-
-        ContentValues values = new ContentValues();
-        values.put(COLUMN_BARCODE, barcode);
-        values.put(COLUMN_NAME, name);
-        values.put(COLUMN_ALLERGENS, allergens);
-        values.put(COLUMN_INGREDIENTS, ingredients);
-        values.put("description", description);  // Guardar la descripción
-
-        db.insert(TABLE_PRODUCTS, null, values);  // Insertar el producto
+        ContentValues cv = new ContentValues();
+        cv.put(COL_BARCODE, product.getBarcode());
+        cv.put(COL_NAME,    product.getName());
+        cv.put(COL_BRAND,   product.getBrand());
+        db.insertWithOnConflict(TABLE_PRODUCTS, null, cv, SQLiteDatabase.CONFLICT_REPLACE);
         db.close();
     }
 
-    // Método para obtener todos los productos
-    public Cursor getAllProducts() {
-        SQLiteDatabase db = this.getReadableDatabase();
-
-        // Seleccionar todas las columnas, incluida _id
-        String query = "SELECT " + COLUMN_ID + ", " + COLUMN_BARCODE + ", " + COLUMN_NAME + ", "
-                + COLUMN_ALLERGENS + ", " + COLUMN_INGREDIENTS + " FROM " + TABLE_PRODUCTS;
-        return db.rawQuery(query, null);
+    // Actualizar un producto (solo name y brand)
+    public void updateProduct(Product product) {
+        SQLiteDatabase db = this.getWritableDatabase();
+        ContentValues cv = new ContentValues();
+        cv.put(COL_NAME,  product.getName());
+        cv.put(COL_BRAND, product.getBrand());
+        db.update(TABLE_PRODUCTS, cv, COL_BARCODE + "=?", new String[]{ product.getBarcode() });
+        db.close();
     }
 
-    public Product getProductByBarcode(String barcode) {
+    // Obtener un producto concreto por barcode
+    public Product getProduct(String barcode) {
         SQLiteDatabase db = this.getReadableDatabase();
-
-        // Consultar el producto por su código de barras
         Cursor cursor = db.query(
                 TABLE_PRODUCTS,
-                new String[]{COLUMN_ID, COLUMN_BARCODE, COLUMN_NAME, COLUMN_ALLERGENS, COLUMN_INGREDIENTS, "description"},  // Añadir "description"
-                COLUMN_BARCODE + "=?",
-                new String[]{barcode},
+                new String[]{ COL_BARCODE, COL_NAME, COL_BRAND },
+                COL_BARCODE + "=?",
+                new String[]{ barcode },
                 null, null, null
         );
 
         if (cursor != null && cursor.moveToFirst()) {
-            String name = cursor.getString(cursor.getColumnIndex(COLUMN_NAME));
-            String allergens = cursor.getString(cursor.getColumnIndex(COLUMN_ALLERGENS));
-            String ingredients = cursor.getString(cursor.getColumnIndex(COLUMN_INGREDIENTS));
-            String description = cursor.getString(cursor.getColumnIndex("description"));  // Obtener la descripción
-            String imageUrl = "default_image_url";  // Puedes reemplazar esto con un valor dinámico si es necesario
-
-            Product product = new Product(barcode, name, allergens, ingredients, description, imageUrl);
+            @SuppressLint("Range") String name  = cursor.getString(cursor.getColumnIndex(COL_NAME));
+            @SuppressLint("Range") String brand = cursor.getString(cursor.getColumnIndex(COL_BRAND));
             cursor.close();
-            return product;
-        } else {
-            cursor.close();
-            return null;
+            db.close();
+            return new Product(
+                    barcode,
+                    name,
+                    brand,
+                    "",   // quantity
+                    "",   // allergens
+                    "",   // ingredients
+                    "",   // description
+                    "",   // stores
+                    "",   // countries
+                    ""    // imageUrl
+            );
         }
+        if (cursor != null) cursor.close();
+        db.close();
+        return null;
+    }
+
+    // Obtener la lista completa de productos (historial)
+    public List<Product> getAllProducts() {
+        List<Product> products = new ArrayList<>();
+        SQLiteDatabase db = this.getReadableDatabase();
+        Cursor cursor = db.query(
+                TABLE_PRODUCTS,
+                new String[]{ COL_BARCODE, COL_NAME, COL_BRAND },
+                null, null, null, null,
+                COL_ID + " DESC"    // ordenamos por ID descendente (último escaneado primero)
+        );
+
+        if (cursor != null && cursor.moveToFirst()) {
+            do {
+                @SuppressLint("Range") String barcode = cursor.getString(cursor.getColumnIndex(COL_BARCODE));
+                String name    = cursor.getString(cursor.getColumnIndex(COL_NAME));
+                @SuppressLint("Range") String brand   = cursor.getString(cursor.getColumnIndex(COL_BRAND));
+                products.add(new Product(
+                        barcode,
+                        name,
+                        brand,
+                        "",   // quantity
+                        "",   // allergens
+                        "",   // ingredients
+                        "",   // description
+                        "",   // stores
+                        "",   // countries
+                        ""    // imageUrl
+                ));
+            } while (cursor.moveToNext());
+            cursor.close();
+        }
+        db.close();
+        return products;
     }
 }

@@ -24,4 +24,20 @@
         android:textSize="14sp"
         android:textColor="?attr/colorAccent"
         android:text="@string/product_allergens" />
+
+    <TextView
+        android:id="@+id/productStores"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:textSize="14sp"
+        android:textColor="?attr/colorAccent"
+        android:text="@string/product_allergens" />
+
+    <TextView
+        android:id="@+id/productCountries"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:textSize="14sp"
+        android:textColor="?attr/colorAccent"
+        android:text="@string/product_allergens" />
 </LinearLayout>
