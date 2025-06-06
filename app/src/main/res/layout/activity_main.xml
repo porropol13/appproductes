@@ -1,4 +1,6 @@
+<?xml version="1.0" encoding="utf-8"?>
 <ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:card_view="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:padding="16dp"
@@ -10,91 +12,125 @@
         android:orientation="vertical"
         android:gravity="center">
 
-        <!-- Aquí colocas el ImageView para mostrar la imagen del producto -->
-        <ImageView
-            android:id="@+id/productImage"
+        <!-- ======= Encapsular imagen en CardView para sombra y esquinas redondeadas ======= -->
+        <androidx.cardview.widget.CardView
             android:layout_width="match_parent"
-            android:layout_height="200dp"
-            android:scaleType="fitCenter"
-            android:layout_marginBottom="16dp"
-            android:contentDescription="Product Image" />
+            android:layout_height="220dp"
+            card_view:cardCornerRadius="12dp"
+            card_view:cardElevation="4dp"
+            android:layout_marginBottom="16dp">
 
-        <EditText
-            android:id="@+id/barcodeInput"
+            <ImageView
+                android:id="@+id/productImage"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:scaleType="centerCrop"
+                android:contentDescription="Product Image" />
+        </androidx.cardview.widget.CardView>
+
+        <!-- ======= Barcode Input con sombra y esquinas redondeadas ======= -->
+        <androidx.cardview.widget.CardView
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginBottom="12dp"
-            android:hint="Enter barcode"
-            android:padding="12dp"
-            android:background="@drawable/rounded_border"
-            android:textColor="#333333"
-            android:textSize="16sp"
-            android:inputType="text" />
+            card_view:cardCornerRadius="8dp"
+            card_view:cardElevation="2dp"
+            android:layout_marginBottom="12dp">
 
+            <EditText
+                android:id="@+id/barcodeInput"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:hint="Introduce código de barras"
+                android:padding="12dp"
+                android:background="@android:color/transparent"
+                android:textColor="#333333"
+                android:textSize="16sp"
+                android:inputType="text" />
+        </androidx.cardview.widget.CardView>
+
+        <!-- ======= Botón Buscar Producto ======= -->
         <Button
             android:id="@+id/scanButton"
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
+            android:layout_height="48dp"
             android:layout_marginBottom="12dp"
-            android:text="Search Product"
+            android:text="Buscar Producto"
             android:textColor="@android:color/white"
             android:background="@drawable/button_background"
-            android:padding="12dp"
             android:textSize="16sp" />
 
+        <!-- ======= Botón Escanear con Cámara ======= -->
         <Button
             android:id="@+id/scanCameraButton"
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginBottom="12dp"
-            android:text="Scan Barcode"
+            android:layout_height="48dp"
+            android:layout_marginBottom="16dp"
+            android:text="Escanear Código de Barras"
             android:textColor="@android:color/white"
             android:background="@drawable/button_background"
-            android:padding="12dp"
             android:textSize="16sp" />
 
+        <!-- ======= Título de sección ======= -->
         <TextView
             android:id="@+id/productInfo"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="Product Information"
-            android:textColor="#333333"
+            android:text="Información del Producto"
+            android:textColor="#212121"
             android:textSize="18sp"
             android:textStyle="bold"
             android:layout_marginBottom="12dp"
             android:gravity="center" />
 
-        <EditText
-            android:id="@+id/commentInput"
+        <!-- ======= Campo Comentario con sombra ======= -->
+        <androidx.cardview.widget.CardView
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginBottom="12dp"
-            android:hint="Enter comment"
-            android:padding="12dp"
-            android:background="@drawable/rounded_border"
-            android:textColor="#333333"
-            android:textSize="16sp"
-            android:inputType="textMultiLine" />
+            card_view:cardCornerRadius="8dp"
+            card_view:cardElevation="2dp"
+            android:layout_marginBottom="12dp">
 
+            <EditText
+                android:id="@+id/commentInput"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:hint="Escribe un comentario"
+                android:padding="12dp"
+                android:background="@android:color/transparent"
+                android:textColor="#333333"
+                android:textSize="16sp"
+                android:inputType="textMultiLine" />
+        </androidx.cardview.widget.CardView>
+
+        <!-- ======= Botón Añadir Comentario ======= -->
         <Button
             android:id="@+id/commentButton"
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginBottom="12dp"
-            android:text="Add Comment"
+            android:layout_height="48dp"
+            android:layout_marginBottom="16dp"
+            android:text="Agregar Comentario"
             android:textColor="@android:color/white"
             android:background="@drawable/button_background"
-            android:padding="12dp"
             android:textSize="16sp" />
 
-        <ListView
-            android:id="@+id/productList"
+        <!-- ======= ListView de productos con fondo blanco y separación ======= -->
+        <androidx.cardview.widget.CardView
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:divider="@android:color/darker_gray"
-            android:dividerHeight="1dp"
-            android:layout_marginTop="12dp"
-            android:paddingTop="8dp" />
+            card_view:cardCornerRadius="8dp"
+            card_view:cardElevation="2dp"
+            android:paddingTop="8dp"
+            android:paddingBottom="8dp"
+            android:layout_marginTop="8dp"
+            android:layout_marginBottom="16dp">
+
+            <ListView
+                android:id="@+id/productList"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:divider="@android:color/darker_gray"
+                android:dividerHeight="1dp" />
+        </androidx.cardview.widget.CardView>
 
     </LinearLayout>
 </ScrollView>
