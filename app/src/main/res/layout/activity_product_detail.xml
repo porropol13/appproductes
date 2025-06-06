@@ -38,8 +38,7 @@
                     android:contentDescription="imagen del producto"
                     android:background="#EEEEEE"
                     android:layout_marginBottom="16dp"
-                    android:clipToOutline="true"
-                    android:shape="rectangle" />
+                    android:clipToOutline="true" />
 
                 <!-- 2. Título: Nombre del producto -->
                 <TextView
@@ -69,8 +68,7 @@
                     <ImageView
                         android:layout_width="20dp"
                         android:layout_height="20dp"
-                        android:src="@android:drawable/ic_menu_info_details"
-                        />
+                        android:src="@android:drawable/ic_menu_info_details" />
 
                     <TextView
                         android:id="@+id/brandTextView"
@@ -92,8 +90,7 @@
                     <ImageView
                         android:layout_width="20dp"
                         android:layout_height="20dp"
-                        android:src="@android:drawable/ic_menu_crop"
-                        />
+                        android:src="@android:drawable/ic_menu_crop" />
 
                     <TextView
                         android:id="@+id/quantityTextView"
@@ -111,9 +108,7 @@
                     android:layout_height="wrap_content"
                     android:background="#FAFAFA"
                     android:padding="12dp"
-                    android:layout_marginBottom="12dp"
-                    android:clipToPadding="false"
-                    android:backgroundTint="#FAFAFA">
+                    android:layout_marginBottom="12dp">
 
                     <TextView
                         android:layout_width="wrap_content"
@@ -229,6 +224,44 @@
                         android:layout_marginTop="4dp"
                         android:textSize="15sp" />
                 </LinearLayout>
+
+                <!-- === SECCIÓN DE COMENTARIOS === -->
+
+                <!-- Línea divisoria antes de comentarios -->
+                <View
+                    android:layout_width="match_parent"
+                    android:layout_height="1dp"
+                    android:background="#DDDDDD"
+                    android:layout_marginTop="16dp"
+                    android:layout_marginBottom="16dp" />
+
+                <!-- 10. Título 'Comentarios' -->
+                <TextView
+                    android:id="@+id/commentsTitle"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="Comentarios"
+                    android:textSize="18sp"
+                    android:textStyle="bold"
+                    android:textColor="#212121"
+                    android:layout_marginBottom="12dp" />
+
+                <!-- 11. ListView para mostrar comentarios (altura fija) -->
+                <androidx.cardview.widget.CardView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    card_view:cardCornerRadius="8dp"
+                    card_view:cardElevation="2dp"
+                    android:padding="8dp"
+                    android:layout_marginBottom="16dp">
+
+                    <ListView
+                        android:id="@+id/commentsListView"
+                        android:layout_width="match_parent"
+                        android:layout_height="200dp"
+                        android:divider="@android:color/darker_gray"
+                        android:dividerHeight="1dp" />
+                </androidx.cardview.widget.CardView>
 
             </LinearLayout>
         </androidx.cardview.widget.CardView>
