@@ -8,7 +8,6 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ListView;
 import android.widget.SimpleCursorAdapter;
-import android.widget.TextView;
 
 import androidx.appcompat.app.AppCompatActivity;
 
@@ -30,7 +29,6 @@ public class MainActivity extends AppCompatActivity {
 
     private EditText barcodeInput;
     private Button scanButton, scanCameraButton, commentButton;
-    private TextView productInfo;
     private EditText commentInput;
     private ListView productList;
     private SimpleCursorAdapter adapter;
@@ -44,23 +42,22 @@ public class MainActivity extends AppCompatActivity {
         FirebaseApp.initializeApp(this);
 
         // Vinculación de vistas
-        barcodeInput = findViewById(R.id.barcodeInput);
-        scanButton = findViewById(R.id.scanButton);
+        barcodeInput     = findViewById(R.id.barcodeInput);
+        scanButton       = findViewById(R.id.scanButton);
         scanCameraButton = findViewById(R.id.scanCameraButton);
-        productInfo = findViewById(R.id.productInfo);
-        commentInput = findViewById(R.id.commentInput);
-        commentButton = findViewById(R.id.commentButton);
-        productList = findViewById(R.id.productList);
+        commentInput     = findViewById(R.id.commentInput);
+        commentButton    = findViewById(R.id.commentButton);
+        productList      = findViewById(R.id.productList);
 
-        // Acción para buscar producto por código de barras
+        // Acción para buscar producto manualmente
         scanButton.setOnClickListener(v -> {
-            String barcode = barcodeInput.getText().toString();
+            String barcode = barcodeInput.getText().toString().trim();
             if (!barcode.isEmpty()) {
                 new FetchProductInfo().execute(barcode);
             }
         });
 
-        // Acción para escanear código de barras con cámara
+        // Acción para escanear con cámara (ZXing)
         scanCameraButton.setOnClickListener(v -> {
             IntentIntegrator integrator = new IntentIntegrator(MainActivity.this);
             integrator.setPrompt("Escanea un código de barras");
@@ -71,17 +68,19 @@ public class MainActivity extends AppCompatActivity {
 
         // Acción para guardar comentario
         commentButton.setOnClickListener(v -> {
-            String comment = commentInput.getText().toString();
-            if (!comment.isEmpty()) {
-                saveComment(barcodeInput.getText().toString(), comment);
+            String comment = commentInput.getText().toString().trim();
+            String barcode  = barcodeInput.getText().toString().trim();
+            if (!barcode.isEmpty() && !comment.isEmpty()) {
+                saveComment(barcode, comment);
                 commentInput.setText("");
             }
         });
     }
 
     private void saveComment(String barcode, String comment) {
-        DatabaseReference database = FirebaseDatabase.getInstance().getReference("comments").child(barcode);
-        // Utilizamos push() para agregar un comentario sin sobrescribir los existentes
+        DatabaseReference database = FirebaseDatabase.getInstance()
+                .getReference("comments")
+                .child(barcode);
         database.push().setValue(comment);
     }
 
@@ -90,8 +89,10 @@ public class MainActivity extends AppCompatActivity {
         protected Product doInBackground(String... params) {
             String barcode = params[0];
             try {
-                URL url = new URL("https://world.openfoodfacts.org/api/v0/product/" + barcode + ".json");
-                HttpURLConnection urlConnection = (HttpURLConnection) url.openConnection();
+                URL url = new URL("https://world.openfoodfacts.org/api/v0/product/"
+                        + barcode + ".json");
+                HttpURLConnection urlConnection =
+                        (HttpURLConnection) url.openConnection();
                 urlConnection.setRequestMethod("GET");
                 urlConnection.connect();
 
@@ -101,7 +102,8 @@ public class MainActivity extends AppCompatActivity {
                     return null;
                 }
 
-                BufferedReader reader = new BufferedReader(new InputStreamReader(urlConnection.getInputStream()));
+                BufferedReader reader = new BufferedReader(
+                        new InputStreamReader(urlConnection.getInputStream()));
                 StringBuilder stringBuilder = new StringBuilder();
                 String line;
                 while ((line = reader.readLine()) != null) {
@@ -109,25 +111,35 @@ public class MainActivity extends AppCompatActivity {
                 }
                 reader.close();
 
-                Log.d("FetchProductInfo", "API Response: " + stringBuilder.toString());
-
-                // Parseo de la respuesta JSON
                 JSONObject jsonObject = new JSONObject(stringBuilder.toString());
                 JSONObject productObject = jsonObject.getJSONObject("product");
 
-                // Extraer datos necesarios
-                String name = productObject.optString("product_name", "No disponible");
-                String allergens = productObject.optString("allergens", "No disponible");
+                // --- Extraemos todos los campos, incluido "quantity" ---
+                String name        = productObject.optString("product_name", "No disponible");
+                String brand       = productObject.optString("brands", "No disponible");
+                String quantity    = productObject.optString("quantity", "No disponible"); // <-- AQUÍ
+                String allergens   = productObject.optString("allergens", "No disponible");
                 String ingredients = productObject.optString("ingredients_text", "No disponible");
-                String description = productObject.optString("description", "No disponible");
-                String stores = productObject.optString("stores", "No disponible");
-                String countries = productObject.optString("countries", "No disponible");
-                String imageUrl = productObject.optString("image_url", "No disponible");
+                String description = productObject.optString("generic_name", "No disponible");
+                String stores      = productObject.optString("stores", "No disponible");
+                String countries   = productObject.optString("countries", "No disponible");
+                String imageUrl    = productObject.optString("image_url", "");
 
-                return new Product(barcode, name, allergens, ingredients, description, stores, countries, imageUrl);
+                // --- Llamamos al constructor con 10 parámetros ---
+                return new Product(
+                        barcode,
+                        name,
+                        brand,
+                        quantity,       // <-- PASAMOS quantity como cuarto parámetro
+                        allergens,
+                        ingredients,
+                        description,
+                        stores,
+                        countries,
+                        imageUrl
+                );
             } catch (Exception e) {
-                Log.e("FetchProductInfo", "Error al obtener la información del producto", e);
-                e.printStackTrace();
+                Log.e("FetchProductInfo", "Error al obtener info del producto", e);
                 return null;
             }
         }
@@ -135,19 +147,7 @@ public class MainActivity extends AppCompatActivity {
         @Override
         protected void onPostExecute(Product product) {
             if (product != null) {
-                String productDetails = "Nombre: " + product.getName() + "\n"
-                        + "Alérgenos: " + product.getAllergens() + "\n"
-                        + "Ingredientes: " + product.getIngredients() + "\n"
-                        + "Descripción: " + product.getDescription() + "\n"
-                        + "Tiendas: " + product.getStores() + "\n"
-                        + "Países: " + product.getCountries() + "\n"
-                        + "Imagen: " + product.getImageUrl();
-
-                Log.d("FetchProductInfo", "Detalles del producto: " + productDetails);
-
-                productInfo.setText(productDetails);
-
-                // Guardar o actualizar producto en la base de datos local
+                // Guardar o actualizar en la base de datos local
                 ProductDatabaseHelper dbHelper = new ProductDatabaseHelper(MainActivity.this);
                 Product existingProduct = dbHelper.getProduct(product.getBarcode());
                 if (existingProduct == null) {
@@ -155,25 +155,26 @@ public class MainActivity extends AppCompatActivity {
                 } else {
                     dbHelper.updateProduct(product);
                 }
+
+                // Lanzar detalle
+                Intent intent = new Intent(MainActivity.this, ProductDetailActivity.class);
+                intent.putExtra("product", product);
+                startActivity(intent);
             } else {
-                productInfo.setText("No se pudo obtener la información.");
+                Log.e("FetchProductInfo", "No se pudo obtener la información del producto");
             }
         }
     }
 
-
     @Override
     public void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
-
-        IntentResult result = IntentIntegrator.parseActivityResult(requestCode, resultCode, data);
-        if (result != null) {
-            if (result.getContents() == null) {
-                productInfo.setText("Escaneo cancelado");
-            } else {
-                barcodeInput.setText(result.getContents());
-                new FetchProductInfo().execute(result.getContents());
-            }
+        IntentResult result =
+                IntentIntegrator.parseActivityResult(requestCode, resultCode, data);
+        if (result != null && result.getContents() != null) {
+            String barcode = result.getContents().trim();
+            barcodeInput.setText(barcode);
+            new FetchProductInfo().execute(barcode);
         }
     }
 }
