@@ -108,11 +108,11 @@ public class MainActivity extends AppCompatActivity {
                 saveComment(barcode, comment);
                 commentInput.setText("");
                 Toast.makeText(MainActivity.this,
-                        "Comentario agregado",
+                        (getString(R.string.coment_add)),
                         Toast.LENGTH_SHORT).show();
             } else {
                 Toast.makeText(MainActivity.this,
-                        "Debe introducir un comentario y un código bien escaneado",
+                        (getString(R.string.debe_introducir_un_comentario_y_un_c_digo_bien_escaneado)),
                         Toast.LENGTH_SHORT).show();
             }
         });

@@ -86,73 +86,73 @@ public class ProductDetailActivity extends AppCompatActivity {
         // Nombre
         String nombre = product.getName();
         if (nombre != null && !nombre.trim().isEmpty()
-                && !nombre.equalsIgnoreCase("No disponible")) {
+                && !nombre.equalsIgnoreCase(getString(R.string.no_disponible))) {
             nameView.setText(nombre);
         } else {
-            nameView.setText("Información no disponible");
+            nameView.setText(R.string.informaci_n_no_disponible);
         }
 
         // Marca
         String marca = product.getBrand();
         if (marca != null && !marca.trim().isEmpty()
-                && !marca.equalsIgnoreCase("No disponible")) {
-            brandView.setText("Marca: " + marca);
+                && !marca.equalsIgnoreCase(getString(R.string.no_disponible))) {
+            brandView.setText(marca);
         } else {
-            brandView.setText("Marca: Información no disponible");
+            brandView.setText(R.string.informaci_n_no_disponible);
         }
 
         // Cantidad
         String cantidad = product.getQuantity();
         if (cantidad != null && !cantidad.trim().isEmpty()
-                && !cantidad.equalsIgnoreCase("No disponible")) {
-            quantityView.setText("Cantidad: " + cantidad);
+                && !cantidad.equalsIgnoreCase(getString(R.string.no_disponible))) {
+            quantityView.setText(cantidad);
         } else {
-            quantityView.setText("Cantidad: Información no disponible");
+            quantityView.setText(R.string.informaci_n_no_disponible);
         }
 
         // Ingredientes
         String ingredientes = product.getIngredients();
         if (ingredientes != null && !ingredientes.trim().isEmpty()
-                && !ingredientes.equalsIgnoreCase("No disponible")) {
-            ingredientsView.setText("Ingredientes: " + ingredientes);
+                && !ingredientes.equalsIgnoreCase(getString(R.string.no_disponible))) {
+            ingredientsView.setText(ingredientes);
         } else {
-            ingredientsView.setText("Ingredientes: Información no disponible");
+            ingredientsView.setText(R.string.informaci_n_no_disponible);
         }
 
         // Alérgenos
         String alergenos = product.getAllergens();
         if (alergenos != null && !alergenos.trim().isEmpty()
-                && !alergenos.equalsIgnoreCase("No disponible")) {
-            allergensView.setText("Alérgenos: " + alergenos);
+                && !alergenos.equalsIgnoreCase(getString(R.string.no_disponible))) {
+            allergensView.setText(alergenos);
         } else {
-            allergensView.setText("Alérgenos: Información no disponible");
+            allergensView.setText(R.string.informaci_n_no_disponible);
         }
 
         // Descripción
         String descripcion = product.getDescription();
         if (descripcion != null && !descripcion.trim().isEmpty()
-                && !descripcion.equalsIgnoreCase("No disponible")) {
-            descriptionView.setText("Descripción: " + descripcion);
+                && !descripcion.equalsIgnoreCase(getString(R.string.no_disponible))) {
+            descriptionView.setText(descripcion);
         } else {
-            descriptionView.setText("Descripción: Información no disponible");
+            descriptionView.setText(R.string.informaci_n_no_disponible);
         }
 
         // Tiendas
         String tiendas = product.getStores();
         if (tiendas != null && !tiendas.trim().isEmpty()
-                && !tiendas.equalsIgnoreCase("No disponible")) {
-            storesView.setText("Tiendas: " + tiendas);
+                && !tiendas.equalsIgnoreCase(getString(R.string.no_disponible))) {
+            storesView.setText(tiendas);
         } else {
-            storesView.setText("Tiendas: Información no disponible");
+            storesView.setText(R.string.informaci_n_no_disponible);
         }
 
         // Países
         String paises = product.getCountries();
         if (paises != null && !paises.trim().isEmpty()
-                && !paises.equalsIgnoreCase("No disponible")) {
-            countriesView.setText("Países: " + paises);
+                && !paises.equalsIgnoreCase(getString(R.string.no_disponible))) {
+            countriesView.setText(paises);
         } else {
-            countriesView.setText("Países: Información no disponible");
+            countriesView.setText(R.string.informaci_n_no_disponible);
         }
 
         // Imagen (si existe URL)
@@ -193,7 +193,7 @@ public class ProductDetailActivity extends AppCompatActivity {
                 }
                 // Si no hay comentarios, mostramos un texto informativo
                 if (commentsList.isEmpty()) {
-                    commentsList.add("No hay comentarios para este producto.");
+                    commentsList.add(getString(R.string.no_hay_comentarios_para_este_producto));
                 }
                 commentsAdapter.notifyDataSetChanged();
             }
@@ -202,7 +202,7 @@ public class ProductDetailActivity extends AppCompatActivity {
             public void onCancelled(@NonNull DatabaseError error) {
                 Toast.makeText(
                         ProductDetailActivity.this,
-                        "Error al cargar comentarios: " + error.getMessage(),
+                        getString(R.string.error_al_cargar_comentarios) + error.getMessage(),
                         Toast.LENGTH_SHORT
                 ).show();
             }

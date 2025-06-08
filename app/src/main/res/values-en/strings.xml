@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">ScannerFood APP</string>
+    <string name="product_name">product\n</string>
+    <string name="product_allergens">allergens\n</string>
+    <string name="no_disponible">Not available</string>
+    <string name="informaci_n_no_disponible">Information not available</string>
+    <string name="no_hay_comentarios_para_este_producto">No comments for this product.</string>
+    <string name="error_al_cargar_comentarios">"Error loading comments: "</string>
+    <string name="ingredientes">Ingredients</string>
+    <string name="al_rgenos">Allergens</string>
+    <string name="descripci_n">Description</string>
+    <string name="tiendas">Stores</string>
+    <string name="pa_ses">Countries</string>
+    <string name="comentarios">Comments</string>
+    <string name="introduce_c_digo_de_barras">Enter barcode</string>
+    <string name="buscar_producto">Search product</string>
+    <string name="escanear_c_digo_de_barras">Scan barcode</string>
+    <string name="comentario">Comment</string>
+    <string name="escribe_un_comentario">Write a comment</string>
+    <string name="agregar_comentario">Add comment</string>
+    <string name="historial_de_productos">Product history</string>
+    <string name="debe_introducir_un_comentario_y_un_c_digo_bien_escaneado">You must enter a comment and a properly scanned code</string>
+    <string name="coment_add">Comment added</string>
+</resources>
