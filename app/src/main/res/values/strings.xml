@@ -2,4 +2,23 @@
     <string name="app_name">ScannerFood APP</string>
     <string name="product_name">product\n</string>
     <string name="product_allergens">alergics\n</string>
+    <string name="no_disponible">No disponible</string>
+    <string name="informaci_n_no_disponible">Información no disponible</string>
+    <string name="no_hay_comentarios_para_este_producto">No hay comentarios para este producto.</string>
+    <string name="error_al_cargar_comentarios">"Error al cargar comentarios: "</string>
+    <string name="ingredientes">Ingredientes</string>
+    <string name="al_rgenos">Alérgenos</string>
+    <string name="descripci_n">Descripción</string>
+    <string name="tiendas">Tiendas</string>
+    <string name="pa_ses">Países</string>
+    <string name="comentarios">Comentarios</string>
+    <string name="introduce_c_digo_de_barras">Introduce código de barras</string>
+    <string name="buscar_producto">Buscar Producto</string>
+    <string name="escanear_c_digo_de_barras">Escanear Código de Barras</string>
+    <string name="comentario">Comentario</string>
+    <string name="escribe_un_comentario">Escribe un comentario</string>
+    <string name="agregar_comentario">Agregar Comentario</string>
+    <string name="historial_de_productos">Historial de Productos</string>
+    <string name="debe_introducir_un_comentario_y_un_c_digo_bien_escaneado">Debe introducir un comentario y un código bien escaneado</string>
+    <string name="coment_add">Comentario añadido</string>
 </resources>

@@ -68,7 +68,7 @@
                     <ImageView
                         android:layout_width="20dp"
                         android:layout_height="20dp"
-                        android:src="@android:drawable/ic_menu_info_details" />
+                        android:src="@drawable/icono1" />
 
                     <TextView
                         android:id="@+id/brandTextView"
@@ -90,7 +90,7 @@
                     <ImageView
                         android:layout_width="20dp"
                         android:layout_height="20dp"
-                        android:src="@android:drawable/ic_menu_crop" />
+                        android:src="@drawable/icono2" />
 
                     <TextView
                         android:id="@+id/quantityTextView"
@@ -113,7 +113,7 @@
                     <TextView
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:text="Ingredientes"
+                        android:text="@string/ingredientes"
                         android:textStyle="bold"
                         android:textColor="#424242"
                         android:textSize="16sp" />
@@ -139,7 +139,7 @@
                     <TextView
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:text="Alérgenos"
+                        android:text="@string/al_rgenos"
                         android:textStyle="bold"
                         android:textColor="#D32F2F"
                         android:textSize="16sp" />
@@ -163,7 +163,7 @@
                     <TextView
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:text="Descripción"
+                        android:text="@string/descripci_n"
                         android:textStyle="bold"
                         android:textColor="#424242"
                         android:textSize="16sp" />
@@ -187,7 +187,7 @@
                     <TextView
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:text="Tiendas"
+                        android:text="@string/tiendas"
                         android:textStyle="bold"
                         android:textColor="#424242"
                         android:textSize="16sp" />
@@ -211,7 +211,7 @@
                     <TextView
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:text="Países"
+                        android:text="@string/pa_ses"
                         android:textStyle="bold"
                         android:textColor="#424242"
                         android:textSize="16sp" />
@@ -240,7 +240,7 @@
                     android:id="@+id/commentsTitle"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:text="Comentarios"
+                    android:text="@string/comentarios"
                     android:textSize="18sp"
                     android:textStyle="bold"
                     android:textColor="#212121"

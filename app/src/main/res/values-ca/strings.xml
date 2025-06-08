@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">ScannerFood APP</string>
+    <string name="product_name">producte\n</string>
+    <string name="product_allergens">al·lèrgics\n</string>
+    <string name="no_disponible">No disponible</string>
+    <string name="informaci_n_no_disponible">Informació no disponible</string>
+    <string name="no_hay_comentarios_para_este_producto">No hi ha comentaris per a aquest producte.</string>
+    <string name="error_al_cargar_comentarios">"Error en carregar els comentaris: "</string>
+    <string name="ingredientes">Ingredients</string>
+    <string name="al_rgenos">Al·lèrgens</string>
+    <string name="descripci_n">Descripció</string>
+    <string name="tiendas">Botigues</string>
+    <string name="pa_ses">Països</string>
+    <string name="comentarios">Comentaris</string>
+    <string name="introduce_c_digo_de_barras">Introdueix el codi de barres</string>
+    <string name="buscar_producto">Cercar producte</string>
+    <string name="escanear_c_digo_de_barras">Escaneja el codi de barres</string>
+    <string name="comentario">Comentari</string>
+    <string name="escribe_un_comentario">Escriu un comentari</string>
+    <string name="agregar_comentario">Afegeix comentari</string>
+    <string name="historial_de_productos">Historial de productes</string>
+    <string name="debe_introducir_un_comentario_y_un_c_digo_bien_escaneado">Has de introduir un comentari i un codi ben escanejat</string>
+    <string name="coment_add">Comentari afegit</string>
+</resources>
